@@ -38,5 +38,8 @@
       :target :node-script, :output-to "target/page.js", :main calc-dsl.page/main!
       :devtools {:after-load calc-dsl.page/main!}
     }
+    :test {
+      :target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true
+    }
   }
 }
