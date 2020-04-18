@@ -1,6 +1,6 @@
 {
   "name": "@memkits/calc-dsl",
-  "version": "0.0.1-a1",
+  "version": "0.0.1-a2",
   "description": "Calculator DSL in Cirru",
   "main": "index.js",
   "scripts": {
