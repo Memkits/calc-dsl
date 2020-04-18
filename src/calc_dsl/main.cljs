@@ -1,14 +1,14 @@
 
-(ns app.main
+(ns calc-dsl.main
   (:require [respo.core :refer [render! clear-cache! realize-ssr!]]
-            [app.comp.container :refer [comp-container]]
-            [app.updater :refer [updater]]
-            [app.schema :as schema]
+            [calc-dsl.comp.container :refer [comp-container]]
+            [calc-dsl.updater :refer [updater]]
+            [calc-dsl.schema :as schema]
             [reel.util :refer [listen-devtools!]]
             [reel.core :refer [reel-updater refresh-reel]]
             [reel.schema :as reel-schema]
             [cljs.reader :refer [read-string]]
-            [app.config :as config]
+            [calc-dsl.config :as config]
             [cumulo-util.core :refer [repeat!]]))
 
 (defonce *reel
