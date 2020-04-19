@@ -1,12 +1,12 @@
 {
-  "name": "calcit-workflow",
-  "version": "0.1.0",
-  "description": "ClojureScript workflow using Calcit Editor",
+  "name": "@memkits/calc-dsl",
+  "version": "0.0.1-a2",
+  "description": "Calculator DSL in Cirru",
   "main": "index.js",
   "scripts": {
     "deploy": "clj -A:release",
     "m2": "clj -A:release install",
-    "watch": "shadow-cljs watch client",
+    "watch": "shadow-cljs watch client test",
     "build-cdn": "shadow-cljs clj-run build.main/build-cdn",
     "build": "shadow-cljs clj-run build.main/build",
     "up": "yarn build-cdn && tiye-up",

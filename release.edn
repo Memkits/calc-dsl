@@ -1,6 +1,6 @@
-{:version "0.0.1"
- :group-id "mvc-works"
- :artifact-id "calcit-workflow"
+{:version "0.0.1-a2"
+ :group-id "memkits"
+ :artifact-id "calc-dsl"
  :skip-tag true
- :description "Workflow"
- :scm-url "https://github.com/mvc-works/calcit-workflow"}
+ :description "Calculator DSL in Cirru"
+ :scm-url "https://github.com/mvc-works/calc-dsl"}
