@@ -11,7 +11,7 @@ Demo http://repo.mvc-works.org/calc-dsl .
 [![Clojars Project](https://img.shields.io/clojars/v/memkits/calc-dsl.svg)](https://clojars.org/memkits/calc-dsl)
 
 ```edn
-[memkits/cal-dsl "0.0.1-a2"]
+[memkits/calc-dsl "0.0.1-a2"]
 ```
 
 Eval tree expression with an `x`(only `x` is supported):
