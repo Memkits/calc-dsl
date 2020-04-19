@@ -17,7 +17,7 @@ Demo http://repo.mvc-works.org/calc-dsl .
 Eval tree expression with an `x`(only `x` is supported):
 
 ```clojure
-(calc-dsl.core/calc-expr ["+" "x" "1"] 2) ; => 4
+(calc-dsl.core/calc-expr ["+" "x" "1"] 2) ; => 3
 ```
 
 Code is in Cirru syntax:
