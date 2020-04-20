@@ -5,6 +5,8 @@
 
 (declare call-expr)
 
+(declare bind-scope)
+
 (def math-dict
   {"+" {:param nil, :f (fn [& xs] (->> xs (reduce + 0)))},
    "-" {:param nil, :f (fn [& xs] (->> (rest xs) (reduce - (or (first xs) 0))))},
@@ -33,15 +35,16 @@
    "rand-int" {:param 1, :f (fn [x] (rand-int x))},
    "trunc" {:param 1, :f (fn [x] (js/Math.trunc x))}})
 
-(defn parse-literal [x]
+(defn parse-literal [x scope]
   (cond
     (= x "pi") js/Math.PI
     (= x "tau") (* 2 js/Math.PI)
     (= x "e") js/Math.E
     (re-matches #"-?\d+(.\d+)?" x) (js/Number x)
+    (contains? scope x) (get scope x)
     :else (do (println "unknown" x) 0)))
 
-(defn call-expr [expr v]
+(defn call-expr [expr scope]
   (let [body (rest expr)
         first-child (first body)
         rest-child (rest body)
@@ -57,12 +60,22 @@
                param
                (count body)))
           :else (do))
-        (apply f (map (fn [x] (calc-expr x v)) body)))
+        (apply f (map (fn [x] (calc-expr x scope)) body)))
       (do (println "Unknown expression:" expr) 1))))
 
-(defn calc-expr [expr v]
-  (cond (= expr "x") v (string? expr) (parse-literal expr) :else (call-expr expr v)))
+(defn calc-expr [expr scope]
+  (cond
+    (string? expr) (parse-literal expr scope)
+    (= "let" (first expr)) (call-expr (last expr) (bind-scope (nth expr 1) scope))
+    :else (call-expr expr scope)))
+
+(defn bind-scope [pairs scope]
+  (if (empty? pairs)
+    scope
+    (let [[k v] (first pairs)]
+      (if-not (string? k) (js/console.warn "Uknown key to bind in" [k v]))
+      (recur (rest pairs) (assoc scope k (calc-expr v scope))))))
 
 (defn calc-x-code
   ([code] (calc-x-code code 1))
-  ([code v] (let [tree (parse code)] (map (fn [x] (calc-expr x v)) tree))))
+  ([code v] (let [tree (parse code)] (map (fn [expr] (calc-expr expr {"x" v})) tree))))

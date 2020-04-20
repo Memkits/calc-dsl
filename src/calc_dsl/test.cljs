@@ -46,6 +46,14 @@
  (testing "divide 3" (is (= (list 1) (calc-x-code "/ 12 4 3")))))
 
 (deftest
+ test-let
+ ()
+ (testing "bind let" (is (= (list 1) (calc-x-code "let ((a 1))\n  + a"))))
+ (testing
+  "bind let a b"
+  (is (= (list 21) (calc-x-code "let\n    a 3\n    b $ + a 4\n  * a b")))))
+
+(deftest
  test-minus
  ()
  (testing "minus nothing" (is (= (list 0) (calc-x-code "-"))))
