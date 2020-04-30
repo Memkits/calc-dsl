@@ -1,0 +1,15 @@
+
+.gitattributes
+.github
+.shadow-cljs
+calcit.cirru
+cli
+deps.edn
+entry
+node_modules
+release.edn
+shadow-cljs.edn
+src
+target
+upload.cirru
+yarn.lock

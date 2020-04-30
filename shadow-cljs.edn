@@ -41,5 +41,10 @@
     :test {
       :target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true
     }
+    :cli {
+      :target :node-script, :output-to "target/cli.js", :main calc-dsl.cli/main!
+      :devtools {:after-load calc-dsl.cli/reload!}
+      :release {:output-to "dist/cli.js"}
+    }
   }
 }

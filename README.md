@@ -80,6 +80,16 @@ let
   * a b x
 ```
 
+### CLI
+
+![](https://img.shields.io/npm/v/@memkits/calc-dsl?style=flat-square)
+
+```bash
+yarn global add @memkits/calc-dsl
+
+calc-dsl
+```
+
 ### Workflow
 
 Workflow https://github.com/mvc-works/calcit-workflow
