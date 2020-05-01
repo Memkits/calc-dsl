@@ -25,7 +25,10 @@
      {:value (:content state),
       :placeholder "Content",
       :style (merge ui/textarea {:width 300, :font-family ui/font-code}),
-      :on-input (fn [e d!] (d! cursor (assoc state :content (:value e))))})
+      :on-input (fn [e d!] (d! cursor (assoc state :content (:value e)))),
+      :on-keydown (fn [e d!]
+        (if (and (= 13 (:keycode e)) (.-metaKey (:event e)))
+          (d! cursor (assoc state :result (calc-x-code (:content state) (:x state))))))})
     (=< 8 nil)
     (div
      {:style (merge ui/expand ui/column)}
