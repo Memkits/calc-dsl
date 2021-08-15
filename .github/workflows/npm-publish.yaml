@@ -61,6 +61,11 @@ jobs:
         src: 'dist/*'
         dest: 'rsync-user@tiye.me:/web-assets/repo/${{ github.repository }}'
 
+    - name: "compiles to js"
+      run: >
+        rm -rf dist/*
+        && yarn compile-cli
+
     - name: Display status from deploy
       run: echo "${{ steps.deploy.outputs.status }}"
 

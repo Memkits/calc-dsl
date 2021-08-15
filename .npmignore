@@ -1,15 +1,16 @@
 
 .gitattributes
 .github
-.shadow-cljs
 calcit.cirru
-cli
-deps.edn
-entry
-node_modules
-release.edn
-shadow-cljs.edn
-src
-target
-upload.cirru
+compact.cirru
+entry/
+build.js
+node_modules/
 yarn.lock
+cli.js
+main.js
+index.html
+cli-out/
+js-out/
+
+.*.cirru
