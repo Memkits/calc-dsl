@@ -37,7 +37,7 @@
                     fn (x) (calc-expr x scope)
                 do (println "\"Unknown expression:" expr) 1
         |calc-x-code $ quote
-          defn calc-x-code (code v0)
+          defn calc-x-code (code ? v0)
             let
                 v $ or v0 1
                 tree $ parse-cirru code
@@ -468,13 +468,13 @@
         |main! $ quote
           defn main! () (println "\"\nStarting Calc DSL REPL.\nSupported operations https://github.com/Memkits/calc-dsl#operations.\n")
             let
-                instance $ .start repl
-                  clj->js $ {} (:prompt "\"> ")
+                instance $ repl/start
+                  js-object (:prompt "\"> ")
                     :eval $ fn (input context filename cb)
                       try
-                        cb nil $ eval-input (string/trim input)
-                        catch js/Error error $ cb error
-              .on instance "\"exit" handle-exit
+                        cb nil $ eval-input (.trim input)
+                        fn (error) (cb error)
+              .!on instance "\"exit" handle-exit
         |eval-input $ quote
           defn eval-input (code)
             first $ calc-x-code code

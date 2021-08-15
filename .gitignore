@@ -3,5 +3,6 @@
 .calcit-error.cirru
 
 js-out/
+cli-out/
 node_modules/
 dist/

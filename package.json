@@ -1,9 +1,10 @@
 {
   "name": "@memkits/calc-dsl",
-  "version": "0.0.2-a2",
+  "version": "0.0.3-a1",
   "description": "Calculator DSL in Cirru",
   "main": "index.js",
   "scripts": {
+    "compile-cli": "cr --emit-js -1 --init-fn calc-dsl.cli/main! --reload-fn calc-dsl.cli/reload! --emit-path cli-out/ && node ./build.js"
   },
   "bin": {
     "calc-dsl": "dist/cli.js"
@@ -16,9 +17,10 @@
   "license": "MIT",
   "devDependencies": {
     "bottom-tip": "^0.1.2",
-    "vite": "^2.4.4",
+    "estrella": "^1.4.1",
+    "feather-icons": "^4.28.0",
     "shortid": "^2.2.15",
-    "feather-icons": "^4.28.0"
+    "vite": "^2.4.4"
   },
   "dependencies": {
     "@calcit/procs": "^0.4.16"
