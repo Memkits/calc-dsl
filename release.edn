@@ -1,6 +1,0 @@
-{:version "0.0.2-a2"
- :group-id "memkits"
- :artifact-id "calc-dsl"
- :skip-tag true
- :description "Calculator DSL in Cirru"
- :scm-url "https://github.com/mvc-works/calc-dsl"}
