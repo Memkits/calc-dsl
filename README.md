@@ -4,33 +4,35 @@ Calc DSL
 
 > some math DSL for calculation in Cirru.
 
-Demo http://repo.mvc-works.org/calc-dsl .
+Demo http://r.tiye.me/mvc-works/calc-dsl .
 
 ### Usage
 
-[![Clojars Project](https://img.shields.io/clojars/v/memkits/calc-dsl.svg)](https://clojars.org/memkits/calc-dsl)
-
-```edn
-[memkits/calc-dsl "0.0.2-a1"]
-```
-
 Eval tree expression with variables:
 
-```clojure
-(calc-dsl.core/calc-x-code "+ x 1" 2) ; => 3
+```cirru
+calc-dsl.core/calc-x-code "|+ x 1" 2
+; => 3
 ```
 
 Code is in Cirru syntax:
 
-```clojure
-(calc-dsl.core/calc-code "+ x 1" {"x" 2}) ; => 3
-(calc-dsl.core/calc-code "+ x $ * x x" {"x" 2}) ; => 6
+```cirru
+calc-dsl.core/calc-code "|+ x 1"
+  &{} |x 2
+; => 3
+
+calc-dsl.core/calc-code "|+ x $ * x x"
+  &{} |x 2
+; => 6
 ```
 
 Also skip parsing and eval tree:
 
-```clojure
-(calc-dsl.core/calc-expr ["+" "x" "1"] {"x" 2}) ; => 3
+```cirru
+calc-dsl.core/calc-expr ([] |+ |x |1)
+  {} (|x 2)
+; => 3
 ```
 
 ### Operations
@@ -92,7 +94,7 @@ calc-dsl
 
 ### Workflow
 
-Workflow https://github.com/mvc-works/calcit-workflow
+Workflow https://github.com/calcit-lang/respo-calcit-workflow
 
 ### License
 
