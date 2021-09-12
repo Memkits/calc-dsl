@@ -4,7 +4,8 @@
   "description": "Calculator DSL in Cirru",
   "main": "index.js",
   "scripts": {
-    "compile-cli": "cr --emit-js -1 --init-fn calc-dsl.cli/main! --reload-fn calc-dsl.cli/reload! --emit-path cli-out/ && node ./build.js"
+    "bundle-cli": "yarn esbuild cli.js --bundle --outfile=dist/cli.js --platform=node",
+    "compile-cli": "cr --emit-js -1 --init-fn calc-dsl.cli/main! --reload-fn calc-dsl.cli/reload! --emit-path cli-out/ && yarn bundle-cli"
   },
   "bin": {
     "calc-dsl": "dist/cli.js"
@@ -17,12 +18,12 @@
   "license": "MIT",
   "devDependencies": {
     "bottom-tip": "^0.1.2",
-    "estrella": "^1.4.1",
+    "esbuild": "^0.12.26",
     "feather-icons": "^4.28.0",
-    "shortid": "^2.2.15",
-    "vite": "^2.4.4"
+    "shortid": "^2.2.16",
+    "vite": "^2.5.6"
   },
   "dependencies": {
-    "@calcit/procs": "^0.4.16"
+    "@calcit/procs": "^0.4.31"
   }
 }
