@@ -1,10 +1,9 @@
 
 {}
-  :configs $ {} (:init-fn |calc-dsl.main/main!) (:port 6001) (:reload-fn |calc-dsl.main/reload!) (:storage-key |calcit.cirru) (:version |0.0.3)
+  :configs $ {} (:extension |.cljs) (:init-fn |calc-dsl.main/main!) (:output |src) (:port 6001) (:reload-fn |calc-dsl.main/reload!) (:storage-key |calcit.cirru) (:version |0.0.3)
     :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
   :entries $ {}
-    :cli $ {} (:init-fn |calc-dsl.cli/main!) (:port 6001) (:reload-fn |calc-dsl.cli/reload!) (:storage-key |calcit.cirru) (:version |0.0.3)
-      :modules $ [] |lilac/ |memof/
+    :cli $ {} (:init-fn |calc-dsl.cli/main!) (:reload-fn |calc-dsl.cli/reload!)
   :ir $ {} (:package |calc-dsl)
     :files $ {}
       |calc-dsl.cli $ {}
@@ -937,7 +936,7 @@
                           |T $ {} (:at 1587181243374) (:by |rJG4IHzWf) (:id |Qc-Tl3qmWa) (:text |tree) (:type :leaf)
                           |j $ {} (:at 1587181244181) (:by |rJG4IHzWf) (:id |TfSm_ugk6) (:type :expr)
                             :data $ {}
-                              |T $ {} (:at 1629029284735) (:by |rJG4IHzWf) (:id |UULk68MZxr) (:text |parse-cirru) (:type :leaf)
+                              |T $ {} (:at 1686242580417) (:by |rJG4IHzWf) (:id |UULk68MZxr) (:text |parse-cirru-list) (:type :leaf)
                               |j $ {} (:at 1587181249256) (:by |rJG4IHzWf) (:id |lPmJWmILEo) (:text |code) (:type :leaf)
                   |r $ {} (:at 1587181332475) (:by |rJG4IHzWf) (:id |qAj0cUvI1) (:type :expr)
                     :data $ {}

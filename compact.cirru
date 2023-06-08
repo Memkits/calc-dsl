@@ -3,8 +3,7 @@
   :configs $ {} (:init-fn |calc-dsl.main/main!) (:reload-fn |calc-dsl.main/reload!) (:version |0.0.3)
     :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
   :entries $ {}
-    :cli $ {} (:init-fn |calc-dsl.cli/main!) (:port 6001) (:reload-fn |calc-dsl.cli/reload!) (:storage-key |calcit.cirru) (:version |0.0.3)
-      :modules $ [] |lilac/ |memof/
+    :cli $ {} (:init-fn |calc-dsl.cli/main!) (:reload-fn |calc-dsl.cli/reload!)
   :files $ {}
     |calc-dsl.cli $ {}
       :defs $ {}
@@ -137,7 +136,7 @@
           defn calc-x-code (code ? v0)
             let
                 v $ or v0 1
-                tree $ parse-cirru code
+                tree $ parse-cirru-list code
               map tree $ fn (expr)
                 calc-expr expr $ {} ("\"x" v)
         |call-expr $ quote
