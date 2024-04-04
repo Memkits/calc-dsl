@@ -19,10 +19,10 @@
     "bottom-tip": "^0.1.5",
     "feather-icons": "^4.29.1",
     "shortid": "^2.2.16",
-    "vite": "^4.4.11"
+    "vite": "^5.2.8"
   },
   "dependencies": {
-    "@calcit/procs": "^0.8.4",
+    "@calcit/procs": "^0.8.46",
     "@calcit/std": "^0.0.3"
   }
 }
