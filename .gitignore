@@ -6,3 +6,10 @@ js-out/
 cli-out/
 node_modules/
 dist/
+
+.yarn/*.gz
+.DS_Store
+
+.yarn/*.gz
+
+.DS_Store

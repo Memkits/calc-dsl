@@ -3,12 +3,12 @@
   "version": "0.0.3",
   "description": "Calculator DSL in Cirru",
   "main": "./cli.mjs",
+  "packageManager": "yarn@4.12.0",
   "scripts": {
-    "compile-cli": "cr --emit-js -1 --entry cli --emit-path cli-out/"
+    "compile": "cr js",
+    "compile-cli": "cr --entry cli --emit-path cli-out/ js"
   },
-  "bin": {
-    "calc-dsl": "./cli.mjs"
-  },
+  "bin": "./cli.mjs",
   "repository": {
     "type": "git",
     "url": "git@github.com:mvc-works/calcit-workflow.git"
@@ -22,7 +22,7 @@
     "vite": "^6.4.2"
   },
   "dependencies": {
-    "@calcit/procs": "^0.8.46",
+    "@calcit/procs": "^0.12.14",
     "@calcit/std": "^0.0.3"
   }
 }
