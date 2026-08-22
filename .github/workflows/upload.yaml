@@ -29,6 +29,12 @@ jobs:
     - name: Install deps
       run: caps --ci && yarn install --immutable
 
+    - name: Validate canonical snapshot
+      run: |
+        calcit calcit.cirru edit format
+        git diff --exit-code -- calcit.cirru
+        calcit calcit.cirru --check-only
+
     - name: "compiles to js"
       run: >
         calcit calcit.cirru js
