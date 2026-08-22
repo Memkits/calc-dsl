@@ -5,8 +5,8 @@
   "main": "./cli.mjs",
   "packageManager": "yarn@4.12.0",
   "scripts": {
-    "compile": "cr js",
-    "compile-cli": "cr --entry cli --emit-path cli-out/ js"
+    "compile": "caps --ci && calcit calcit.cirru js",
+    "compile-cli": "calcit --entry cli --emit-path cli-out/ calcit.cirru js"
   },
   "bin": "./cli.mjs",
   "repository": {
@@ -22,7 +22,7 @@
     "vite": "^6.4.2"
   },
   "dependencies": {
-    "@calcit/procs": "^0.12.14",
+    "@calcit/procs": "^0.13.29",
     "@calcit/std": "^0.0.3"
   }
 }

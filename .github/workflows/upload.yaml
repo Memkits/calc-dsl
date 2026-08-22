@@ -16,9 +16,9 @@ jobs:
       with:
         node-version: 24
 
-    - uses: calcit-lang/setup-cr@0.0.8
+    - uses: calcit-lang/setup-calcit@v1
       with:
-        version: 0.12.14
+        tools: calcit,caps
 
     - name: Enable Corepack
       run: |
@@ -29,9 +29,15 @@ jobs:
     - name: Install deps
       run: caps --ci && yarn install --immutable
 
+    - name: Validate canonical snapshot
+      run: |
+        calcit calcit.cirru edit format
+        git diff --exit-code -- calcit.cirru
+        calcit calcit.cirru --check-only
+
     - name: "compiles to js"
       run: >
-        cr js
+        calcit calcit.cirru js
         && yarn vite build --base=./
         && yarn compile-cli
 
