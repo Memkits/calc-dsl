@@ -8,7 +8,9 @@
     "compile": "caps --ci && calcit calcit.cirru js",
     "compile-cli": "calcit --entry cli --emit-path cli-out/ calcit.cirru js"
   },
-  "bin": "./cli.mjs",
+  "bin": {
+    "calc-dsl": "./cli.mjs"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:mvc-works/calcit-workflow.git"
