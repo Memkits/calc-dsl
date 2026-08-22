@@ -7,7 +7,7 @@
       :type-slots $ {}
     :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :native) (:reload-fn 'calc-dsl.main/reload!)
       :feature-policy $ {}
-      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/ |js-ffi/
       :type-slots $ {}
   :files $ {}
     |calc-dsl.cli $ %{} 'FileEntry

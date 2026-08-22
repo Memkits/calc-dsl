@@ -1,6 +1,6 @@
 {
   "name": "@memkits/calc-dsl",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Calculator DSL in Cirru",
   "main": "./cli.mjs",
   "packageManager": "yarn@4.12.0",
