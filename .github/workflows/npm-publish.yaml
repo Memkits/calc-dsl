@@ -5,18 +5,27 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Check out repository
+      uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      with:
+        persist-credentials: false
 
-    - uses: actions/setup-node@v6
+    - name: Set up Node.js
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
       with:
         node-version: 24
         registry-url: https://registry.npmjs.org/
+        package-manager-cache: false
 
-    - uses: calcit-lang/setup-calcit@v1
+    - name: Set up Calcit and Caps
+      uses: calcit-lang/setup-calcit@704b3f5cd6f9ce3bd1e0c926dbdd1d181adb8180 # v1.4.0
       with:
         tools: calcit,caps
 
@@ -26,17 +35,34 @@ jobs:
         corepack prepare yarn@4.12.0 --activate
         yarn --version
 
-    - name: Install deps
-      run: caps --ci && yarn install --immutable
+    - name: Resolve immutable dependencies
+      run: |
+        set -euo pipefail
+        caps --strict --ci
+        yarn install --immutable
+        caps verify --toolchain
 
-    - name: "compiles to js"
-      run: >
+    - name: Validate Calcit entries
+      run: |
+        set -euo pipefail
+        calcit calcit.cirru edit format
+        git diff --exit-code -- calcit.cirru
+        calcit calcit.cirru --check-only
+        calcit calcit.cirru --entry cli --check-only
+        calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
+        calcit calcit.cirru analyze dynamic-methods --max 0
+        calcit calcit.cirru --entry cli analyze dynamic-methods --max 0
+        calcit calcit.cirru analyze deprecated --summary-only
+
+    - name: Build web assets
+      run: |
+        set -euo pipefail
         calcit calcit.cirru js
-        && yarn vite build --base=./
+        yarn vite build --base=./
 
     - name: Deploy to server
       id: deploy
-      uses: Pendect/action-rsyncer@v2.0.0
+      uses: Pendect/action-rsyncer@8e05ffa5c93e5d9c9b167796b26044d2c616b2b9 # v2.0.0
       env:
         DEPLOY_KEY: ${{secrets.rsync_private_key}}
       with:
@@ -46,10 +72,8 @@ jobs:
         src: 'dist/*'
         dest: 'rsync-user@tiye.me:/web-assets/repo/${{ github.repository }}'
 
-    - name: "compiles to js"
-      run: >
-        rm -rf dist/*
-        && yarn compile-cli
+    - name: Build CLI assets
+      run: yarn compile-cli
 
     - name: Display status from deploy
       run: echo "${{ steps.deploy.outputs.status }}"
