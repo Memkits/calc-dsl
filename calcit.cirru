@@ -1,11 +1,19 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --full` first. Manual edits must follow format and schema conventions, then run `calcit edit format`.") (:package |calc-dsl)
+{}
+  :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
+  :package |calc-dsl
   :entries $ {}
-    :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :native) (:reload-fn 'calc-dsl.cli/reload!)
+    :cli $ {} (:description |)
+      :init-fn 'calc-dsl.cli/main!
+      :mode :native
+      :reload-fn 'calc-dsl.cli/reload!
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
-    :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :native) (:reload-fn 'calc-dsl.main/reload!)
+    :default $ {} (:description |)
+      :init-fn 'calc-dsl.main/main!
+      :mode :native
+      :reload-fn 'calc-dsl.main/reload!
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/ |js-ffi/
       :type-slots $ {}
@@ -13,144 +21,135 @@
     'calc-dsl.cli $ %{} 'FileEntry
       :defs $ {}
         'eval-input $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn eval-input (code)
-              option:unwrap-or
-                first $ calc-x-code code
-                , 0
+          :code $ quote $ defn eval-input (code)
+            option:unwrap-or
+              first $ calc-x-code code
+              , 0
           :examples $ []
           :schema $ :: 'Dynamic
         'handle-exit $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn handle-exit () $ .!exit (unsafe-coerce js/process 'JsObject)
+          :code $ quote $ defn handle-exit ()
+            .!exit $ unsafe-coerce js/process 'JsObject
           :examples $ []
           :schema $ :: 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn main! () (println "|\nStarting Calc DSL REPL.\nSupported operations https://github.com/Memkits/calc-dsl#operations.\n")
-              let
-                  instance $ repl/start
-                    js-object (:prompt "|> ")
-                      :eval $ fn (input context filename cb)
-                        try
-                          cb nil $ eval-input
-                            trim $ unsafe-coerce input 'String
-                          fn (error) (cb error)
-                .!on instance |exit handle-exit
+          :code $ quote $ defn main! ()
+            println "|\nStarting Calc DSL REPL.\nSupported operations https://github.com/Memkits/calc-dsl#operations.\n"
+            let
+                instance $ repl/start $ js-object (:prompt "|> ")
+                  :eval $ fn (input context filename cb)
+                    try
+                      cb nil $ eval-input $ trim (unsafe-coerce input 'String)
+                      fn (error) (cb error)
+              .!on instance |exit handle-exit
           :examples $ []
           :schema $ :: 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn reload! () $ println |reloading...
+          :code $ quote $ defn reload! () (println |reloading...)
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.cli $ :require ([] |repl :as repl)
+        :code $ quote $ ns calc-dsl.cli
+          :require ([] |repl :as repl)
             [] calc-dsl.core :refer $ [] calc-x-code
             [] clojure.string :as string
     'calc-dsl.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defcomp comp-container (reel)
-              let
-                  store $ unsafe-coerce
-                    option:unwrap-or (get reel :store) ({})
-                    , 'Map
-                  states $ unsafe-coerce
-                    option:unwrap-or (get store :states) ({})
-                    , 'Map
-                  cursor $ or
-                    option:unwrap-or (get states :cursor) nil
-                    []
-                div ({})
-                  comp-debugger $ >> states :debugger
-                  when dev? $ comp-reel (>> states :reel) reel ({})
+          :code $ quote $ defcomp comp-container (reel)
+            let
+                store $ unsafe-coerce
+                  option:unwrap-or (get reel :store) ({})
+                  , 'Map
+                states $ unsafe-coerce
+                  option:unwrap-or (get store :states) ({})
+                  , 'Map
+                cursor $ or
+                  option:unwrap-or (get states :cursor) nil
+                  []
+              div ({})
+                comp-debugger $ >> states :debugger
+                when dev? $ comp-reel (>> states :reel) reel $ {}
           :examples $ []
           :schema $ :: 'Dynamic
         'comp-debugger $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defcomp comp-debugger (states)
-              let
-                  cursor $ option:unwrap-or (get states :cursor) nil
-                  state $ or
-                    option:unwrap-or (get states :data) nil
-                    {} (:content |) (:x 1)
-                      :result $ []
+          :code $ quote $ defcomp comp-debugger (states)
+            let
+                cursor $ option:unwrap-or (get states :cursor) nil
+                state $ or
+                  option:unwrap-or (get states :data) nil
+                  {} (:content |) (:x 1)
+                    :result $ []
+              div
+                {} $ :style $ assoc
+                  unsafe-coerce (merge ui/global ui/fullscreen ui/row) 'Map
+                  , :padding 8
+                textarea $ {}
+                  :value $ option:unwrap-or (get state :content) nil
+                  :placeholder |Content
+                  :style $ merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
+                  :on-input $ fn (e d!)
+                    d! cursor $ assoc state :content $ option:unwrap-or (get e :value) nil
+                  :on-keydown $ fn (e d!)
+                    let
+                        keycode $ unsafe-coerce
+                          option:unwrap-or (get e :keycode) 0
+                          , 'Number
+                        event $ unsafe-coerce
+                          option:unwrap-or (get e :event) js/undefined
+                          , 'JsObject
+                      if
+                        and (= 13 keycode)
+                          unsafe-coerce (.-metaKey event) 'Bool
+                        d! cursor $ assoc state :result $ calc-x-code
+                          option:unwrap-or (get state :content) nil
+                          option:unwrap-or (get state :x) nil
+                =< 8 nil
                 div
-                  {} $ :style
-                    assoc
-                      unsafe-coerce (merge ui/global ui/fullscreen ui/row) 'Map
-                      , :padding 8
-                  textarea $ {}
-                    :value $ option:unwrap-or (get state :content) nil
-                    :placeholder |Content
-                    :style $ merge ui/textarea
-                      {} (:width 300) (:font-family ui/font-code)
-                    :on-input $ fn (e d!)
-                      d! cursor $ assoc state :content
-                        option:unwrap-or (get e :value) nil
-                    :on-keydown $ fn (e d!)
-                      let
-                          keycode $ unsafe-coerce
-                            option:unwrap-or (get e :keycode) 0
-                            , 'Number
-                          event $ unsafe-coerce
-                            option:unwrap-or (get e :event) js/undefined
-                            , 'JsObject
-                        if
-                          and (= 13 keycode)
-                            unsafe-coerce (.-metaKey event) 'Bool
-                          d! cursor $ assoc state :result
-                            calc-x-code
-                              option:unwrap-or (get state :content) nil
-                              option:unwrap-or (get state :x) nil
-                  =< 8 nil
-                  div
-                    {} $ :style (merge ui/expand ui/column)
-                    div ({})
-                      <> $ str |x:
-                      =< 8 nil
-                      input $ {} (:type |number)
-                        :value $ option:unwrap-or (get state :x) nil
-                        :style $ merge ui/input
-                          {} (:width 80) (:font-family ui/font-code) (:min-width 60)
-                        :on-input $ fn (e d!)
-                          d! cursor $ assoc state :x
-                            js/parseFloat $ unsafe-coerce
+                  {} $ :style $ merge ui/expand ui/column
+                  div ({})
+                    <> $ str |x:
+                    =< 8 nil
+                    input $ {} (:type |number)
+                      :value $ option:unwrap-or (get state :x) nil
+                      :style $ merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
+                      :on-input $ fn (e d!)
+                        d! cursor $ assoc state :x $ js/parseFloat
+                          unsafe-coerce
+                            unsafe-coerce
                               unsafe-coerce
                                 unsafe-coerce
-                                  unsafe-coerce
-                                    aget
-                                      unsafe-coerce
-                                        .-target $ option:unwrap-or (get e :event) nil
-                                        , JsObject
-                                      , |value
-                                    , String
+                                  aget
+                                    unsafe-coerce
+                                      .-target $ option:unwrap-or (get e :event) nil
+                                      , JsObject
+                                    , |value
                                   , String
                                 , String
                               , String
-                    =< nil 16
-                    div ({})
-                      button $ {} (:style ui/button) (:inner-text |Run)
-                        :on-click $ fn (e d!)
-                          d! cursor $ assoc state :result
-                            calc-x-code
-                              option:unwrap-or (get state :content) nil
-                              option:unwrap-or (get state :x) nil
-                    pre $ {}
-                      :inner-text $ ->
-                        option:unwrap-or (get state :result) nil
-                        .join-str &newline
-                    div $ {} (:style ui/expand)
-                    div ({}) (<> "|Docs: ")
-                      a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
+                            , String
+                  =< nil 16
+                  div ({})
+                    button $ {} (:style ui/button) (:inner-text |Run)
+                      :on-click $ fn (e d!)
+                        d! cursor $ assoc state :result $ calc-x-code
+                          option:unwrap-or (get state :content) nil
+                          option:unwrap-or (get state :x) nil
+                  pre $ {} $ :inner-text
+                    ->
+                      option:unwrap-or (get state :result) nil
+                      .join-str &newline
+                  div $ {} $ :style ui/expand
+                  div ({}) (<> "|Docs: ")
+                    a $ {}
+                      :href |http://github.com/Memkits/calc-dsl/
+                      :target |_blank
+                      :inner-text |http://github.com/Memkits/calc-dsl/
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.comp.container $ :require
+        :code $ quote $ ns calc-dsl.comp.container
+          :require
             [] hsl.core :refer $ [] hsl
             [] respo-ui.core :as ui
             [] respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input a pre
@@ -163,104 +162,107 @@
     'calc-dsl.config $ %{} 'FileEntry
       :defs $ {}
         'cdn? $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def cdn? $ cond
+          :code $ quote $ def cdn?
+            cond
                 exists? js/window
                 , false
-              (exists? js/process) (= |true js/process.env.cdn)
+              (exists? js/process)
+                = |true js/process.env.cdn
               :else false
           :examples $ []
           :schema $ :: 'Dynamic
         'dev? $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def dev? $ = |dev
-              option:unwrap-or (get-env |mode) |release
+          :code $ quote $ def dev?
+            = |dev $ option:unwrap-or (get-env |mode) |release
           :examples $ []
           :schema $ :: 'Dynamic
         'site $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def site $ {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css) (:cdn-url |http://cdn.tiye.me/calc-dsl/) (:title "|Calc DSL") (:icon |http://cdn.tiye.me/logo/memkits.png) (:storage-key |calc-dsl)
+          :code $ quote $ def site
+            {}
+              :dev-ui |http://localhost:8100/main-fonts.css
+              :release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css
+              :cdn-url |http://cdn.tiye.me/calc-dsl/
+              :title "|Calc DSL"
+              :icon |http://cdn.tiye.me/logo/memkits.png
+              :storage-key |calc-dsl
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote (ns calc-dsl.config)
+        :code $ quote $ ns calc-dsl.config
     'calc-dsl.core $ %{} 'FileEntry
       :defs $ {}
         'bind-scope $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn bind-scope (pairs scope)
-              if (empty? pairs) scope $ let-sugar
-                    [] k v
-                    unsafe-coerce
-                      option:unwrap-or (first pairs) ([])
-                      , 'List
-                if-not (string? k)
-                  js/console.warn "|Uknown key to bind in" $ [] k v
-                recur (rest pairs)
-                  assoc scope k $ calc-expr v scope
+          :code $ quote $ defn bind-scope (pairs scope)
+            if (empty? pairs) scope $ let-sugar
+                  [] k v
+                  unsafe-coerce
+                    option:unwrap-or (first pairs) ([])
+                    , 'List
+              if-not (string? k)
+                js/console.warn "|Uknown key to bind in" $ [] k v
+              recur (rest pairs)
+                assoc scope k $ calc-expr v scope
           :examples $ []
           :schema $ :: 'Dynamic
         'calc-expr $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn calc-expr (expr scope)
-              if (string? expr) (parse-literal expr scope)
-                let
-                    expr-list $ unsafe-coerce expr 'List
-                  if
-                    = |let $ option:unwrap-or (first expr-list) |
-                    call-expr
-                      option:unwrap-or (last expr-list) ([])
-                      bind-scope
-                        option:unwrap-or (nth expr-list 1) ([])
-                        , scope
-                    call-expr expr-list scope
+          :code $ quote $ defn calc-expr (expr scope)
+            if (string? expr) (parse-literal expr scope)
+              let
+                  expr-list $ unsafe-coerce expr 'List
+                if
+                  = |let $ option:unwrap-or (first expr-list) |
+                  call-expr
+                    option:unwrap-or (last expr-list) ([])
+                    bind-scope
+                      option:unwrap-or (nth expr-list 1) ([])
+                      , scope
+                  call-expr expr-list scope
           :examples $ []
           :schema $ :: 'Dynamic
         'calc-x-code $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn calc-x-code (code ? v0)
-              let
-                  v $ or v0 1
-                  tree $ parse-cirru-list code
-                map tree $ fn (expr)
-                  calc-expr expr $ {} (|x v)
+          :code $ quote $ defn calc-x-code (code ? v0)
+            let
+                v $ or v0 1
+                tree $ parse-cirru-list code
+              map tree $ fn (expr)
+                calc-expr expr $ {} $ |x v
           :examples $ []
           :schema $ :: 'Dynamic
         'call-expr $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn call-expr (expr scope)
-              let
-                  expr-list $ unsafe-coerce expr 'List
-                  body $ rest expr-list
-                  expr-name $ unsafe-coerce
-                    option:unwrap-or (first expr-list) |
-                    , 'String
-                  method-option $ get math-dict expr-name
-                if (option:some? method-option)
-                  let
-                      method $ unsafe-coerce
-                        option:unwrap-or method-option $ {}
-                        , 'Map
-                      f $ unsafe-coerce
-                        option:unwrap-or (get method :f)
-                          fn (& xs) 1
-                        , 'Fn
-                      param $ option:unwrap-or (get method :param) nil
-                    do
-                      cond
-                          number? param
-                          when-not
-                            = param $ count body
-                            js/console.warn "|%s takes %d arguments but got %d" expr-name param $ count body
-                        true nil
-                      f & $ map body
-                        fn (x) (calc-expr x scope)
-                  do (println "|Unknown expression:" expr) 1
+          :code $ quote $ defn call-expr (expr scope)
+            let
+                expr-list $ unsafe-coerce expr 'List
+                body $ rest expr-list
+                expr-name $ unsafe-coerce
+                  option:unwrap-or (first expr-list) |
+                  , 'String
+                method-option $ get math-dict expr-name
+              if (option:some? method-option)
+                let
+                    method $ unsafe-coerce
+                      option:unwrap-or method-option $ {}
+                      , 'Map
+                    f $ unsafe-coerce
+                      option:unwrap-or (get method :f)
+                        fn (& xs) 1
+                      , 'Fn
+                    param $ option:unwrap-or (get method :param) nil
+                  do
+                    cond
+                        number? param
+                        when-not
+                          = param $ count body
+                          js/console.warn "|%s takes %d arguments but got %d" expr-name param $ count body
+                      true nil
+                    f & $ map body $ fn (x) (calc-expr x scope)
+                do
+                  println "|Unknown expression:" expr
+                  , 1
           :examples $ []
           :schema $ :: 'Dynamic
         'math-dict $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def math-dict $ {}
+          :code $ quote $ def math-dict
+            {}
               |+ $ {} (:param nil)
                 :f $ fn (& xs)
                   -> xs $ reduce 0 &+
@@ -340,80 +342,72 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'number-pattern $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def number-pattern $ new js/RegExp "|-?\\d+(.\\d+)?"
+          :code $ quote $ def number-pattern (new js/RegExp "|-?\\d+(.\\d+)?")
           :examples $ []
           :schema $ :: 'Dynamic
         'parse-literal $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn parse-literal (x scope)
-              cond
-                  = x |pi
-                  unsafe-coerce js/Math.PI Number
-                (= x |tau)
-                  * 2 $ unsafe-coerce js/Math.PI Number
-                (= x |e) js/Math.E
-                (.!test number-pattern x) (js/Number x)
-                (contains? scope x) (get scope x)
-                true $ do (println |unknown x) 0
+          :code $ quote $ defn parse-literal (x scope)
+            cond
+                = x |pi
+                unsafe-coerce js/Math.PI Number
+              (= x |tau)
+                * 2 $ unsafe-coerce js/Math.PI Number
+              (= x |e) js/Math.E
+              (.!test number-pattern x) (js/Number x)
+              (contains? scope x) (get scope x)
+              true $ do (println |unknown x) 0
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.core $ :require
-            |@calcit/std :refer $ rand rand-int
+        :code $ quote $ ns calc-dsl.core
+          :require $ |@calcit/std :refer $ rand rand-int
     'calc-dsl.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defatom *reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
+          :code $ quote $ defatom *reel
+            -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
           :examples $ []
           :schema $ :: 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn dispatch! (op)
-              when
-                and config/dev? $ not=
-                  option:unwrap-or (nth op 0) :unknown
-                  , :states
-                println |Dispatch: op
-              reset! *reel $ reel-updater updater @*reel op
+          :code $ quote $ defn dispatch! (op)
+            when
+              and config/dev? $ not=
+                option:unwrap-or (nth op 0) :unknown
+                , :states
+              println |Dispatch: op
+            reset! *reel $ reel-updater updater @*reel op
           :examples $ []
           :schema $ :: 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn main! ()
-              println "|Running mode:" $ if config/dev? |dev |release
-              render-app!
-              add-watch *reel :changes $ fn (r p) (render-app!)
-              listen-devtools! |a dispatch!
-              js/window.addEventListener |beforeunload persist-storage!
-              flipped js/setInterval 60000 persist-storage!
-              let
-                  raw $ js/localStorage.getItem
-                    option:unwrap-or (get config/site :storage-key) |
-                when (js-present? raw)
-                  dispatch! $ :: :hydrate-storage
-                    parse-cirru-edn $ unsafe-coerce raw String
-              println "|App started."
+          :code $ quote $ defn main! ()
+            println "|Running mode:" $ if config/dev? |dev |release
+            render-app!
+            add-watch *reel :changes $ fn (r p) (render-app!)
+            listen-devtools! |a dispatch!
+            js/window.addEventListener |beforeunload persist-storage!
+            flipped js/setInterval 60000 persist-storage!
+            let
+                raw $ js/localStorage.getItem $ option:unwrap-or (get config/site :storage-key) |
+              when (js-present? raw)
+                dispatch! $ :: :hydrate-storage $ parse-cirru-edn (unsafe-coerce raw String)
+            println "|App started."
           :examples $ []
           :schema $ :: 'Dynamic
         'mount-target $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def mount-target $ js/document.querySelector |.app
+          :code $ quote $ def mount-target
+            js/document.querySelector |.app
           :examples $ []
           :schema $ :: 'Dynamic
         'persist-storage! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn persist-storage! (? e)
-              js/localStorage.setItem
-                option:unwrap-or (get config/site :storage-key) |
-                format-cirru-edn $ option:unwrap-or (get @*reel :store) nil
+          :code $ quote $ defn persist-storage! (? e)
+            js/localStorage.setItem
+              option:unwrap-or (get config/site :storage-key) |
+              format-cirru-edn $ option:unwrap-or (get @*reel :store) nil
           :examples $ []
           :schema $ :: 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn reload! () $ if (nil? build-errors)
+          :code $ quote $ defn reload! ()
+            if (nil? build-errors)
               do (remove-watch *reel :changes) (clear-cache!)
                 add-watch *reel :changes $ fn (reel prev) (render-app!)
                 reset! *reel $ refresh-reel @*reel schema/store updater
@@ -422,27 +416,25 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'render-app! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
+          :code $ quote $ defn render-app! ()
+            render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
           :schema $ :: 'Dynamic
         'repeat! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn repeat! (duration cb)
-              js/setTimeout
-                fn () (cb)
-                  repeat! (* 1000 duration) cb
-                * 1000 duration
+          :code $ quote $ defn repeat! (duration cb)
+            js/setTimeout
+              fn () (cb)
+                repeat! (* 1000 duration) cb
+              * 1000 duration
           :examples $ []
           :schema $ :: 'Dynamic
         'snippets $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn snippets () $ println config/cdn?
+          :code $ quote $ defn snippets () (println config/cdn?)
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.main $ :require
+        :code $ quote $ ns calc-dsl.main
+          :require
             [] respo.core :refer $ [] render! clear-cache! realize-ssr!
             [] calc-dsl.comp.container :refer $ [] comp-container
             [] calc-dsl.updater :refer $ [] updater
@@ -457,8 +449,8 @@
     'calc-dsl.page $ %{} 'FileEntry
       :defs $ {}
         'base-info $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def base-info $ {}
+          :code $ quote $ def base-info
+            {}
               :title $ :title config/site
               :icon $ :icon config/site
               :ssr nil
@@ -466,42 +458,41 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'dev-page $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn dev-page () $ make-page |
-              merge base-info $ {}
-                :styles $ [] (<< "|http://~(get-ip!):8100/main.css") |/entry/main.css
-                :scripts $ [] |/client.js
-                :inline-styles $ []
+          :code $ quote $ defn dev-page ()
+            make-page | $ merge base-info $ {}
+              :styles $ []
+                << "|http://~(get-ip!):8100/main.css"
+                , |/entry/main.css
+              :scripts $ [] |/client.js
+              :inline-styles $ []
           :examples $ []
           :schema $ :: 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn main! ()
-              println "|Running mode:" $ if config/dev? |dev |release
-              if config/dev?
-                spit |target/index.html $ dev-page
-                spit |dist/index.html $ prod-page
+          :code $ quote $ defn main! ()
+            println "|Running mode:" $ if config/dev? |dev |release
+            if config/dev?
+              spit |target/index.html $ dev-page
+              spit |dist/index.html $ prod-page
           :examples $ []
           :schema $ :: 'Dynamic
         'prod-page $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn prod-page () $ let
+          :code $ quote $ defn prod-page ()
+            let
                 reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
-                html-content $ make-string (comp-container reel)
-                assets $ read-string (slurp |dist/assets.edn)
+                html-content $ make-string $ comp-container reel
+                assets $ read-string $ slurp |dist/assets.edn
                 cdn $ if config/cdn? (:cdn-url config/site) |
                 prefix-cdn $ fn (x) (str cdn x)
-              make-page html-content $ merge base-info
-                {}
-                  :styles $ [] (:release-ui config/site)
-                  :scripts $ map ("#()" -> % :output-name prefix-cdn) assets
-                  :ssr |respo-ssr
-                  :inline-styles $ [] (slurp |./entry/main.css)
+              make-page html-content $ merge base-info $ {}
+                :styles $ [] $ :release-ui config/site
+                :scripts $ map ("#()" -> % :output-name prefix-cdn) assets
+                :ssr |respo-ssr
+                :inline-styles $ [] $ slurp |./entry/main.css
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.page $ :require
+        :code $ quote $ ns calc-dsl.page
+          :require
             respo.render.html :refer $ make-string
             shell-page.core :refer $ make-page spit slurp
             calc-dsl.comp.container :refer $ comp-container
@@ -512,176 +503,125 @@
             cumulo-util.build :refer $ get-ip!
             clojure.core.strint :refer $ <<
     'calc-dsl.schema $ %{} 'FileEntry
-      :defs $ {}
-        'store $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            def store $ {}
-              :states $ {}
-                :cursor $ []
+      :defs $ {} $ 'store
+        %{} 'CodeEntry (:doc |)
+          :code $ quote $ def store
+            {} $ :states $ {}
+              :cursor $ []
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote (ns calc-dsl.schema)
+        :code $ quote $ ns calc-dsl.schema
     'calc-dsl.test $ %{} 'FileEntry
       :defs $ {}
         'test-add $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-add ()
-              testing "|add nothing" $ is
-                = (list 0) (calc-x-code |+)
-              testing "|add 1" $ is
-                = (list 1) (calc-x-code "|+ 1")
-              testing "|add 2" $ is
-                = (list 3) (calc-x-code "|+ 1 2")
-              testing "|add 3" $ is
-                = (list 6) (calc-x-code "|+ 1 2 3")
+          :code $ quote $ deftest test-add ()
+            testing "|add nothing" $ is $ = (list 0) (calc-x-code |+)
+            testing "|add 1" $ is $ = (list 1) (calc-x-code "|+ 1")
+            testing "|add 2" $ is $ = (list 3) (calc-x-code "|+ 1 2")
+            testing "|add 3" $ is $ = (list 6) (calc-x-code "|+ 1 2 3")
           :examples $ []
           :schema $ :: 'Dynamic
         'test-calc $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-calc ()
-              testing |abs $ is
-                = (list 2) (calc-x-code "|abs 2")
-              testing "|abs nagtive" $ is
-                = (list 2) (calc-x-code "|abs -2")
-              testing |round $ is
-                = (list 2) (calc-x-code "|round 2.2")
-              testing "|round up" $ is
-                = (list 3) (calc-x-code "|round 2.6")
-              testing |ceil $ is
-                = (list 3) (calc-x-code "|ceil 2.6")
-              testing |floor $ is
-                = (list 2) (calc-x-code "|floor 2.6")
-              testing |log $ is
-                =
-                  list $ js/Math.log 10
-                  calc-x-code "|log 10"
-              testing |pow $ is
-                = (list 27) (calc-x-code "|pow 3 3")
-              testing |root $ is
-                = (list 3) (calc-x-code "|root 27 3")
-              testing |mod $ is
-                = (list 1) (calc-x-code "|mod 13 4")
-              testing |quot $ is
-                = (list 3) (calc-x-code "|% 13 4")
-              testing |sqrt $ is
-                = (list 3) (calc-x-code "|sqrt 9")
-              testing |invert $ is
-                =
-                  list $ / 1 3
-                  calc-x-code "|invert 3"
-              testing |negate $ is
-                = (list -1) (calc-x-code "|negate 1")
-              testing |trunc $ is
-                = (list 2) (calc-x-code "|trunc 2.1")
-              testing |trunc $ is
-                = (list -2) (calc-x-code "|trunc -2.1")
+          :code $ quote $ deftest test-calc ()
+            testing |abs $ is $ = (list 2) (calc-x-code "|abs 2")
+            testing "|abs nagtive" $ is $ = (list 2) (calc-x-code "|abs -2")
+            testing |round $ is $ = (list 2) (calc-x-code "|round 2.2")
+            testing "|round up" $ is $ = (list 3) (calc-x-code "|round 2.6")
+            testing |ceil $ is $ = (list 3) (calc-x-code "|ceil 2.6")
+            testing |floor $ is $ = (list 2) (calc-x-code "|floor 2.6")
+            testing |log $ is $ =
+              list $ js/Math.log 10
+              calc-x-code "|log 10"
+            testing |pow $ is $ = (list 27) (calc-x-code "|pow 3 3")
+            testing |root $ is $ = (list 3) (calc-x-code "|root 27 3")
+            testing |mod $ is $ = (list 1) (calc-x-code "|mod 13 4")
+            testing |quot $ is $ = (list 3) (calc-x-code "|% 13 4")
+            testing |sqrt $ is $ = (list 3) (calc-x-code "|sqrt 9")
+            testing |invert $ is $ =
+              list $ / 1 3
+              calc-x-code "|invert 3"
+            testing |negate $ is $ = (list -1) (calc-x-code "|negate 1")
+            testing |trunc $ is $ = (list 2) (calc-x-code "|trunc 2.1")
+            testing |trunc $ is $ = (list -2) (calc-x-code "|trunc -2.1")
           :examples $ []
           :schema $ :: 'Dynamic
         'test-compose $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-compose ()
-              testing "|add and times" $ is
-                = (list 24) (calc-x-code "|* 3 $ + 5 3")
-              testing "|add and times" $ is
-                = (list 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
+          :code $ quote $ deftest test-compose ()
+            testing "|add and times" $ is $ = (list 24) (calc-x-code "|* 3 $ + 5 3")
+            testing "|add and times" $ is $ = (list 77)
+              calc-x-code "|* (+ 3 4) (+ 5 6)"
           :examples $ []
           :schema $ :: 'Dynamic
         'test-divide $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-divide ()
-              testing "|divide nothing" $ is
-                = (list 1) (calc-x-code |/)
-              testing "|divide 1" $ is
-                = (list 2) (calc-x-code "|/ 2")
-              testing "|divide 2" $ is
-                = (list 4) (calc-x-code "|/ 12 3")
-              testing "|divide 3" $ is
-                = (list 1) (calc-x-code "|/ 12 4 3")
+          :code $ quote $ deftest test-divide ()
+            testing "|divide nothing" $ is $ = (list 1) (calc-x-code |/)
+            testing "|divide 1" $ is $ = (list 2) (calc-x-code "|/ 2")
+            testing "|divide 2" $ is $ = (list 4) (calc-x-code "|/ 12 3")
+            testing "|divide 3" $ is $ = (list 1) (calc-x-code "|/ 12 4 3")
           :examples $ []
           :schema $ :: 'Dynamic
         'test-let $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-let ()
-              testing "|bind let" $ is
-                = (list 1) (calc-x-code "|let ((a 1))\n  + a")
-              testing "|bind let a b" $ is
-                = (list 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
+          :code $ quote $ deftest test-let ()
+            testing "|bind let" $ is $ = (list 1)
+              calc-x-code "|let ((a 1))\n  + a"
+            testing "|bind let a b" $ is $ = (list 21)
+              calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b"
           :examples $ []
           :schema $ :: 'Dynamic
         'test-minus $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-minus ()
-              testing "|minus nothing" $ is
-                = (list 0) (calc-x-code |-)
-              testing "|minus 1" $ is
-                = (list 1) (calc-x-code "|- 1")
-              testing "|minus 2" $ is
-                = (list -1) (calc-x-code "|- 1 2")
-              testing "|minus 3" $ is
-                = (list -4) (calc-x-code "|- 1 2 3")
+          :code $ quote $ deftest test-minus ()
+            testing "|minus nothing" $ is $ = (list 0) (calc-x-code |-)
+            testing "|minus 1" $ is $ = (list 1) (calc-x-code "|- 1")
+            testing "|minus 2" $ is $ = (list -1) (calc-x-code "|- 1 2")
+            testing "|minus 3" $ is $ = (list -4) (calc-x-code "|- 1 2 3")
           :examples $ []
           :schema $ :: 'Dynamic
         'test-times $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-times ()
-              testing "|times nothing" $ is
-                = (list 1) (calc-x-code |*)
-              testing "|times 1" $ is
-                = (list 2) (calc-x-code "|* 2")
-              testing "|times 2" $ is
-                = (list 6) (calc-x-code "|* 2 3")
-              testing "|times 3" $ is
-                = (list 24) (calc-x-code "|* 2 3 4")
+          :code $ quote $ deftest test-times ()
+            testing "|times nothing" $ is $ = (list 1) (calc-x-code |*)
+            testing "|times 1" $ is $ = (list 2) (calc-x-code "|* 2")
+            testing "|times 2" $ is $ = (list 6) (calc-x-code "|* 2 3")
+            testing "|times 3" $ is $ = (list 24) (calc-x-code "|* 2 3 4")
           :examples $ []
           :schema $ :: 'Dynamic
         'test-triangular-funcs $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-triangular-funcs ()
-              testing "|sin 1" $ is
-                =
-                  list $ js/Math.sin 1
-                  calc-x-code "|sin 1"
-              testing "|cos 1" $ is
-                =
-                  list $ js/Math.cos 1
-                  calc-x-code "|cos 1"
-              testing "|tan 1" $ is
-                =
-                  list $ js/Math.tan 1
-                  calc-x-code "|tan 1"
+          :code $ quote $ deftest test-triangular-funcs ()
+            testing "|sin 1" $ is $ =
+              list $ js/Math.sin 1
+              calc-x-code "|sin 1"
+            testing "|cos 1" $ is $ =
+              list $ js/Math.cos 1
+              calc-x-code "|cos 1"
+            testing "|tan 1" $ is $ =
+              list $ js/Math.tan 1
+              calc-x-code "|tan 1"
           :examples $ []
           :schema $ :: 'Dynamic
         'test-variables $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            deftest test-titest-variablesmes ()
-              testing "|x as 2" $ is
-                = (list 4) (calc-x-code "|* x x" 2)
-              testing "|x as 3" $ is
-                = (list 9) (calc-x-code "|* x x" 3)
-              testing "|x as 3" $ is
-                =
-                  list $ js/Math.pow 4 6
-                  calc-x-code "|pow (+ x 1) (* x 2)" 3
+          :code $ quote $ deftest test-titest-variablesmes ()
+            testing "|x as 2" $ is $ = (list 4) (calc-x-code "|* x x" 2)
+            testing "|x as 3" $ is $ = (list 9) (calc-x-code "|* x x" 3)
+            testing "|x as 3" $ is $ =
+              list $ js/Math.pow 4 6
+              calc-x-code "|pow (+ x 1) (* x 2)" 3
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.test $ :require
+        :code $ quote $ ns calc-dsl.test
+          :require
             [] cljs.test :refer $ [] deftest is testing run-tests
             [] calc-dsl.core :refer $ [] calc-x-code
     'calc-dsl.updater $ %{} 'FileEntry
-      :defs $ {}
-        'updater $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defn updater (store op op-id op-time)
-              match op
-                (:states cursor s) (update-states store cursor s)
-                (:hydrate-storage d) d
-                _ $ do (eprintln "|Unknown op:" op) store
+      :defs $ {} $ 'updater
+        %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn updater (store op op-id op-time)
+            match op
+              (:states cursor s) (update-states store cursor s)
+              (:hydrate-storage d) d
+              _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns calc-dsl.updater $ :require
-            [] respo.cursor :refer $ [] update-states
+        :code $ quote $ ns calc-dsl.updater
+          :require $ [] respo.cursor :refer $ [] update-states
