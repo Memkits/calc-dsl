@@ -8,28 +8,24 @@ Demo http://r.tiye.me/mvc-works/calc-dsl .
 
 ### Usage
 
-Eval tree expression with variables:
+Evaluate a Cirru expression with the optional `x` variable. The API returns a list
+of results, one per top-level expression:
 
-```cirru
+```cirru.no-check
 calc-dsl.core/calc-x-code "|+ x 1" 2
-; => 3
+; => (3)
 ```
 
-Code is in Cirru syntax:
+Nested expressions use Cirru syntax:
 
-```cirru
-calc-dsl.core/calc-code "|+ x 1"
-  &{} |x 2
-; => 3
-
-calc-dsl.core/calc-code "|+ x $ * x x"
-  &{} |x 2
-; => 6
+```cirru.no-check
+calc-dsl.core/calc-x-code "|+ x $ * x x" 2
+; => (6)
 ```
 
-Also skip parsing and eval tree:
+You can also evaluate an already parsed expression with a scope:
 
-```cirru
+```cirru.no-check
 calc-dsl.core/calc-expr ([] |+ |x |1)
   {} (|x 2)
 ; => 3
@@ -37,7 +33,7 @@ calc-dsl.core/calc-expr ([] |+ |x |1)
 
 ### Operations
 
-```cirru
+```cirru.no-check
 % 13 4
 * (+ 3 4) (+ 5 6)
 * 2
@@ -75,7 +71,7 @@ trunc 2.1
 
 Special support for `let`:
 
-```cirru
+```cirru.no-check
 let
     a 2
     b $ * a 3

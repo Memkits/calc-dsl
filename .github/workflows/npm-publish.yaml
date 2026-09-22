@@ -73,7 +73,9 @@ jobs:
         dest: 'rsync-user@tiye.me:/web-assets/repo/${{ github.repository }}'
 
     - name: Build CLI assets
-      run: yarn compile-cli
+      run: |
+        yarn compile-cli
+        yarn test:cli
 
     - name: Display status from deploy
       run: echo "${{ steps.deploy.outputs.status }}"
