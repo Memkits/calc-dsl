@@ -60,6 +60,7 @@ jobs:
         calcit calcit.cirru js
         yarn vite build --base=./
         yarn compile-cli
+        yarn test:cli
 
     - name: Deploy to server
       id: deploy

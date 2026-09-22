@@ -14,14 +14,6 @@
   :files $ {}
     'calc-dsl.cli $ %{} 'FileEntry
       :defs $ {}
-        'ProcessHost $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftrait ProcessHost
-            .exit $ :: 'Fn $ {}
-              :args $ [] 'ProcessHost
-              :return $ :: 'JsNullish 'JsObject
-          :examples $ []
-          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
-          :schema $ :: 'Trait
         'eval-input $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn eval-input (code)
             option:unwrap-or
@@ -31,11 +23,7 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'String
         'handle-exit $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn handle-exit ()
-            let
-                process $ unsafe-coerce js/process 'ProcessHost
-              .exit process
-              , &unit
+          :code $ quote $ defn handle-exit () (js/process.exit 0) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -255,14 +243,13 @@
                       option:unwrap $ get method :f
                       , 'Fn
                     param $ option:unwrap-or (get method :param) nil
-                  do
-                    cond
-                        number? param
-                        when-not
-                          = param $ count body
-                          js/console.warn "|%s takes %d arguments but got %d" expr-name param $ count body
-                      true nil
-                    f & $ map body $ fn (x) (calc-expr x scope)
+                  cond
+                      number? param
+                      when-not
+                        = param $ count body
+                        js/console.warn "|%s takes %d arguments but got %d" expr-name param $ count body
+                    true nil
+                  f & $ map body $ fn (x) (calc-expr x scope)
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
@@ -473,7 +460,8 @@
         'snippets $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn snippets () (println config/cdn?)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.main
           :require
