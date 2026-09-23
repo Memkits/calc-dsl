@@ -7,9 +7,6 @@ cli-out/
 node_modules/
 dist/
 
-.yarn/*.gz
-.DS_Store
-
-.yarn/*.gz
-
+.yarn/
+.pnp.*
 .DS_Store
