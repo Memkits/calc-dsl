@@ -3,7 +3,7 @@
   "version": "0.0.7",
   "description": "Calculator DSL in Cirru",
   "main": "./cli.mjs",
-  "packageManager": "yarn@4.12.0",
+  "packageManager": "yarn@4.18.0",
   "scripts": {
     "compile": "caps --ci && calcit calcit.cirru js",
     "compile-cli": "calcit --entry cli --emit-path cli-out/ calcit.cirru js",
