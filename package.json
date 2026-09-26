@@ -1,6 +1,6 @@
 {
   "name": "@memkits/calc-dsl",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Calculator DSL in Cirru",
   "main": "./cli.mjs",
   "packageManager": "yarn@4.18.0",
@@ -23,7 +23,7 @@
     "vite": "^8.2.2"
   },
   "dependencies": {
-    "@calcit/procs": "0.18.1",
+    "@calcit/procs": "0.22.0-alpha.3",
     "@calcit/std": "^0.0.3"
   }
 }

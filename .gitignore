@@ -10,3 +10,5 @@ dist/
 .yarn/
 .pnp.*
 .DS_Store
+.pnp.cjs
+.pnp.loader.mjs
