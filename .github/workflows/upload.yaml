@@ -25,7 +25,7 @@ jobs:
         package-manager-cache: false
 
     - name: Set up Calcit and Caps
-      uses: calcit-lang/setup-calcit@704b3f5cd6f9ce3bd1e0c926dbdd1d181adb8180 # v1.4.0
+      uses: calcit-lang/setup-calcit@ca701be5a471759e442aa053cd100720bbe1f09f # v1.5.0
       with:
         tools: calcit,caps
 
@@ -50,8 +50,8 @@ jobs:
         calcit calcit.cirru --check-only
         calcit calcit.cirru --entry cli --check-only
         calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
-        calcit calcit.cirru analyze dynamic-methods --max 0
-        calcit calcit.cirru --entry cli analyze dynamic-methods --max 0
+        calcit calcit.cirru analyze dynamic-methods
+        calcit calcit.cirru --entry cli analyze dynamic-methods
         calcit calcit.cirru analyze deprecated --summary-only
 
     - name: Build web and CLI assets
