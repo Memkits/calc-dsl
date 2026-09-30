@@ -3,11 +3,11 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |calc-dsl
   :entries $ {}
-    :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :native) (:reload-fn 'calc-dsl.cli/reload!)
+    :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :native) (:reload-fn 'calc-dsl.cli/reload!) (:target :node)
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
-    :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :native) (:reload-fn 'calc-dsl.main/reload!)
+    :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :native) (:reload-fn 'calc-dsl.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/ |js-ffi/
       :type-slots $ {}
@@ -163,7 +163,12 @@
             cond
                 exists? js/window
                 , false
-              (exists? js/process) (= |true js/process.env.cdn)
+              (exists? js/process)
+                let
+                    raw js/process.env.cdn
+                  if (js-present? raw)
+                    = |true $ expect-string |process.env.cdn raw
+                    , false
               true false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -181,6 +186,7 @@
           :schema $ :: 'Map 'Tag 'String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.config
+          :require $ [] js-ffi.contract :refer $ [] expect-string
     'calc-dsl.core $ %{} 'FileEntry
       :defs $ {}
         'bind-scope $ %{} 'CodeEntry (:doc |)

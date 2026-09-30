@@ -5,8 +5,11 @@
   "main": "./cli.mjs",
   "packageManager": "yarn@4.18.0",
   "scripts": {
-    "compile": "caps --ci && calcit calcit.cirru js",
+    "compile": "calcit calcit.cirru js",
     "compile-cli": "calcit --entry cli --emit-path cli-out/ calcit.cirru js",
+    "build": "yarn compile && vite build",
+    "dev": "vite",
+    "release": "yarn build",
     "test:cli": "node --test test/cli.test.mjs"
   },
   "bin": "./cli.mjs",
@@ -20,10 +23,11 @@
     "bottom-tip": "^0.1.5",
     "feather-icons": "^4.29.1",
     "shortid": "^2.2.16",
-    "vite": "^8.2.2"
+    "vite": "8.3.1"
   },
   "dependencies": {
-    "@calcit/procs": "0.24.3",
-    "@calcit/std": "^0.0.3"
+    "@calcit/procs": "0.27.0",
+    "@calcit/std": "^0.0.3",
+    "dayjs": "^1.11.23"
   }
 }
