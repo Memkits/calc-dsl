@@ -7,6 +7,7 @@
   "scripts": {
     "compile": "calcit calcit.cirru js",
     "compile-cli": "calcit --entry cli --emit-path cli-out/ calcit.cirru js",
+    "compile-tests": "calcit calcit.cirru --init-fn calc-dsl.test/run-tests --emit-path test-out/ js",
     "build": "yarn compile && vite build",
     "dev": "vite",
     "release": "yarn build",
