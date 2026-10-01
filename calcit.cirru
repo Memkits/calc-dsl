@@ -3,13 +3,13 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |calc-dsl
   :entries $ {}
-    :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :native) (:reload-fn 'calc-dsl.cli/reload!) (:target :node)
+    :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :js) (:reload-fn 'calc-dsl.cli/reload!) (:target :node)
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
-    :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :native) (:reload-fn 'calc-dsl.main/reload!) (:target :browser)
+    :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :js) (:reload-fn 'calc-dsl.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/ |js-ffi/
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |reel.calcit/ |js-ffi/
       :type-slots $ {}
   :files $ {}
     'calc-dsl.cli $ %{} 'FileEntry
@@ -91,20 +91,28 @@
                   :placeholder |Content
                   :style $ merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
                   :on-input $ fn (e d!)
-                    d! cursor $ assoc state :content $ option:unwrap-or (get e :value) nil
+                    hint-fn $ {}
+                      :args $ [] (quote respo.schema/RespoEvent) (quote Dynamic)
+                      :return $ quote Dynamic
+                    d! $ :: :states cursor $ assoc state :content
+                      expect-string |input.value $ :value e
                   :on-keydown $ fn (e d!)
+                    hint-fn $ {}
+                      :args $ [] (quote respo.schema/RespoEvent) (quote Dynamic)
+                      :return $ quote Dynamic
                     let
-                        keycode $ unsafe-coerce
-                          option:unwrap-or (get e :keycode) 0
-                          , 'Number
-                        meta? $ unsafe-coerce
-                          option:unwrap-or (get e :meta?) false
-                          , 'Bool
-                      if
+                        keycode $ option:unwrap-or
+                          js-nullish->option $ :keycode e
+                          , 0
+                        meta? $ option:unwrap-or
+                          js-nullish->option $ :meta? e
+                          , false
+                      when
                         and (= 13 keycode) meta?
-                        d! cursor $ assoc state :result $ calc-x-code
-                          option:unwrap-or (get state :content) nil
-                          option:unwrap-or (get state :x) nil
+                        d! $ :: :states cursor $ assoc state :result
+                          calc-x-code
+                            option:unwrap-or (get state :content) nil
+                            option:unwrap-or (get state :x) nil
                 =< 8 nil
                 div
                   {} $ :style $ merge ui/expand ui/column
@@ -115,18 +123,24 @@
                       :value $ option:unwrap-or (get state :x) nil
                       :style $ merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
                       :on-input $ fn (e d!)
-                        d! cursor $ assoc state :x $ result:unwrap-or
-                          parse-float $ unsafe-coerce
-                            option:unwrap-or (get e :value) |
-                            , 'String
-                          , 0
+                        hint-fn $ {}
+                          :args $ [] (quote respo.schema/RespoEvent) (quote Dynamic)
+                          :return $ quote Dynamic
+                        d! $ :: :states cursor $ assoc state :x
+                          result:unwrap-or
+                            parse-float $ expect-string |input.value $ :value e
+                            , 0
                   =< nil 16
                   div ({})
                     button $ {} (:style ui/button) (:inner-text |Run)
                       :on-click $ fn (e d!)
-                        d! cursor $ assoc state :result $ calc-x-code
-                          option:unwrap-or (get state :content) nil
-                          option:unwrap-or (get state :x) nil
+                        hint-fn $ {}
+                          :args $ [] (quote respo.schema/RespoEvent) (quote Dynamic)
+                          :return $ quote Dynamic
+                        d! $ :: :states cursor $ assoc state :result
+                          calc-x-code
+                            option:unwrap-or (get state :content) nil
+                            option:unwrap-or (get state :x) nil
                   pre $ {} $ :inner-text
                     ->
                       unsafe-coerce
@@ -143,15 +157,15 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
-            [] hsl.core :refer $ [] hsl
-            [] respo-ui.core :as ui
-            [] respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input a pre
-            [] respo.comp.space :refer $ [] =<
-            [] reel.comp.reel :refer $ [] comp-reel
-            [] respo-md.comp.md :refer $ [] comp-md
-            [] calc-dsl.config :refer $ [] dev?
-            [] calc-dsl.core :refer $ [] calc-x-code
-            [] clojure.string :as string
+            hsl.core :refer $ [] hsl
+            respo-ui.core :as ui
+            respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input a pre
+            respo.comp.space :refer $ [] =<
+            reel.comp.reel :refer $ [] comp-reel
+            calc-dsl.config :refer $ [] dev?
+            calc-dsl.core :refer $ [] calc-x-code
+            clojure.string :as string
+            js-ffi.contract :refer $ [] expect-string
     'calc-dsl.config $ %{} 'FileEntry
       :defs $ {}
         'cdn? $ %{} 'CodeEntry (:doc |)
@@ -308,7 +322,7 @@
               |root $ {} (:param 2) (:f math-root)
               |mod $ {} (:param 2) (:f math-rem)
               |rem $ {} (:param 2) (:f math-rem)
-              |% $ {} (:param 2) (:f math-rem)
+              |% $ {} (:param 2) (:f math-quot)
               |sqrt $ {} (:param 1) (:f sqrt)
               |invert $ {} (:param 1) (:f math-invert)
               |negate $ {} (:param 1) (:f math-negate)
@@ -321,11 +335,20 @@
           :schema $ :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
         'math-div $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-div (& xs)
-            unsafe-coerce (apply / xs) 'Number
+            match (first xs)
+              (:none) 1
+              (:some x)
+                reduce (rest xs) x &/
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
             :features $ #{} :js-ffi
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-zero-unary-and-left-fold)
+            :code $ quote $ do
+              is= 1 $ math-div
+              is= 2 $ math-div 2
+              is= 1 $ math-div 12 4 3
+            :tags $ #{} :unit
         'math-invert $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-invert (x) (/ 1 x)
           :examples $ []
@@ -351,6 +374,13 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Number
+        'math-quot $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn math-quot (x y)
+            ffi-trunc $ / x y
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number 'Number
+            :features $ #{} :js-ffi
         'math-rem $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-rem (x y) (&number:rem x y)
           :examples $ []
@@ -364,11 +394,20 @@
             :args $ [] 'Number 'Number
         'math-sub $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-sub (& xs)
-            unsafe-coerce (apply - xs) 'Number
+            match (first xs)
+              (:none) 0
+              (:some x)
+                reduce (rest xs) x &-
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
             :features $ #{} :js-ffi
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-zero-unary-and-left-fold)
+            :code $ quote $ do
+              is= 0 $ math-sub
+              is= 2 $ math-sub 2
+              is= 5 $ math-sub 10 3 2
+            :tags $ #{} :unit
         'parse-literal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn parse-literal (x scope)
             let
@@ -387,7 +426,9 @@
             :args $ [] 'String $ :: 'Map 'String 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.core
-          :require $ |@calcit/std :refer $ rand rand-int
+          :require
+            |@calcit/std :refer $ rand rand-int
+            calcit.test :refer $ [] is=
     'calc-dsl.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
@@ -397,15 +438,13 @@
           :schema $ :: 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
-            when
-              and config/dev? $ not=
-                option:unwrap-or (nth op 0) :unknown
-                , :states
-              println |Dispatch: op
+            when config/dev? $ match op
+              (:states _ _) &unit
+              _ $ println |Dispatch: op
             reset! *reel $ reel-updater updater @*reel op
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
+            :args $ [] 'Enum
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -490,106 +529,140 @@
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.schema
     'calc-dsl.test $ %{} 'FileEntry
       :defs $ {}
+        'run-tests $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn run-tests () (test-add) (test-calc) (test-compose) (test-divide) (test-let) (test-minus) (test-times) (test-triangular-funcs) (test-variables) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-add $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-add ()
-            testing "|add nothing" $ is $ = (list 0) (calc-x-code |+)
-            testing "|add 1" $ is $ = (list 1) (calc-x-code "|+ 1")
-            testing "|add 2" $ is $ = (list 3) (calc-x-code "|+ 1 2")
-            testing "|add 3" $ is $ = (list 6) (calc-x-code "|+ 1 2 3")
+          :code $ quote $ defn test-add ()
+            is $ = ([] 0) (calc-x-code |+)
+            is $ = ([] 1) (calc-x-code "|+ 1")
+            is $ = ([] 3) (calc-x-code "|+ 1 2")
+            is $ = ([] 6) (calc-x-code "|+ 1 2 3")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-calc $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-calc ()
-            testing |abs $ is $ = (list 2) (calc-x-code "|abs 2")
-            testing "|abs nagtive" $ is $ = (list 2) (calc-x-code "|abs -2")
-            testing |round $ is $ = (list 2) (calc-x-code "|round 2.2")
-            testing "|round up" $ is $ = (list 3) (calc-x-code "|round 2.6")
-            testing |ceil $ is $ = (list 3) (calc-x-code "|ceil 2.6")
-            testing |floor $ is $ = (list 2) (calc-x-code "|floor 2.6")
-            testing |log $ is $ =
-              list $ js/Math.log 10
+          :code $ quote $ defn test-calc ()
+            is $ = ([] 2) (calc-x-code "|abs 2")
+            is $ = ([] 2) (calc-x-code "|abs -2")
+            is $ = ([] 2) (calc-x-code "|round 2.2")
+            is $ = ([] 3) (calc-x-code "|round 2.6")
+            is $ = ([] 3) (calc-x-code "|ceil 2.6")
+            is $ = ([] 2) (calc-x-code "|floor 2.6")
+            is $ =
+              [] $ expect-number |expected-Math-result $ js/Math.log 10
               calc-x-code "|log 10"
-            testing |pow $ is $ = (list 27) (calc-x-code "|pow 3 3")
-            testing |root $ is $ = (list 3) (calc-x-code "|root 27 3")
-            testing |mod $ is $ = (list 1) (calc-x-code "|mod 13 4")
-            testing |quot $ is $ = (list 3) (calc-x-code "|% 13 4")
-            testing |sqrt $ is $ = (list 3) (calc-x-code "|sqrt 9")
-            testing |invert $ is $ =
-              list $ / 1 3
+            is $ = ([] 27) (calc-x-code "|pow 3 3")
+            is $ = ([] 3) (calc-x-code "|root 27 3")
+            is $ = ([] 1) (calc-x-code "|mod 13 4")
+            is $ = ([] 3) (calc-x-code "|% 13 4")
+            is $ = ([] 3) (calc-x-code "|sqrt 9")
+            is $ =
+              [] $ / 1 3
               calc-x-code "|invert 3"
-            testing |negate $ is $ = (list -1) (calc-x-code "|negate 1")
-            testing |trunc $ is $ = (list 2) (calc-x-code "|trunc 2.1")
-            testing |trunc $ is $ = (list -2) (calc-x-code "|trunc -2.1")
+            is $ = ([] -1) (calc-x-code "|negate 1")
+            is $ = ([] 2) (calc-x-code "|trunc 2.1")
+            is $ = ([] -2) (calc-x-code "|trunc -2.1")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-compose $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-compose ()
-            testing "|add and times" $ is $ = (list 24) (calc-x-code "|* 3 $ + 5 3")
-            testing "|add and times" $ is $ = (list 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
+          :code $ quote $ defn test-compose ()
+            is $ = ([] 24) (calc-x-code "|* 3 $ + 5 3")
+            is $ = ([] 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-divide $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-divide ()
-            testing "|divide nothing" $ is $ = (list 1) (calc-x-code |/)
-            testing "|divide 1" $ is $ = (list 2) (calc-x-code "|/ 2")
-            testing "|divide 2" $ is $ = (list 4) (calc-x-code "|/ 12 3")
-            testing "|divide 3" $ is $ = (list 1) (calc-x-code "|/ 12 4 3")
+          :code $ quote $ defn test-divide ()
+            is $ = ([] 1) (calc-x-code |/)
+            is $ = ([] 2) (calc-x-code "|/ 2")
+            is $ = ([] 4) (calc-x-code "|/ 12 3")
+            is $ = ([] 1) (calc-x-code "|/ 12 4 3")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-let $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-let ()
-            testing "|bind let" $ is $ = (list 1) (calc-x-code "|let ((a 1))\n  + a")
-            testing "|bind let a b" $ is $ = (list 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
+          :code $ quote $ defn test-let ()
+            is $ = ([] 1) (calc-x-code "|let ((a 1))\n  + a")
+            is $ = ([] 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-minus $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-minus ()
-            testing "|minus nothing" $ is $ = (list 0) (calc-x-code |-)
-            testing "|minus 1" $ is $ = (list 1) (calc-x-code "|- 1")
-            testing "|minus 2" $ is $ = (list -1) (calc-x-code "|- 1 2")
-            testing "|minus 3" $ is $ = (list -4) (calc-x-code "|- 1 2 3")
+          :code $ quote $ defn test-minus ()
+            is $ = ([] 0) (calc-x-code |-)
+            is $ = ([] 1) (calc-x-code "|- 1")
+            is $ = ([] -1) (calc-x-code "|- 1 2")
+            is $ = ([] -4) (calc-x-code "|- 1 2 3")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-times $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-times ()
-            testing "|times nothing" $ is $ = (list 1) (calc-x-code |*)
-            testing "|times 1" $ is $ = (list 2) (calc-x-code "|* 2")
-            testing "|times 2" $ is $ = (list 6) (calc-x-code "|* 2 3")
-            testing "|times 3" $ is $ = (list 24) (calc-x-code "|* 2 3 4")
+          :code $ quote $ defn test-times ()
+            is $ = ([] 1) (calc-x-code |*)
+            is $ = ([] 2) (calc-x-code "|* 2")
+            is $ = ([] 6) (calc-x-code "|* 2 3")
+            is $ = ([] 24) (calc-x-code "|* 2 3 4")
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-triangular-funcs $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-triangular-funcs ()
-            testing "|sin 1" $ is $ =
-              list $ js/Math.sin 1
+          :code $ quote $ defn test-triangular-funcs ()
+            is $ =
+              [] $ expect-number |expected-Math-result $ js/Math.sin 1
               calc-x-code "|sin 1"
-            testing "|cos 1" $ is $ =
-              list $ js/Math.cos 1
+            is $ =
+              [] $ expect-number |expected-Math-result $ js/Math.cos 1
               calc-x-code "|cos 1"
-            testing "|tan 1" $ is $ =
-              list $ js/Math.tan 1
+            is $ =
+              [] $ expect-number |expected-Math-result $ js/Math.tan 1
               calc-x-code "|tan 1"
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'test-variables $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ deftest test-titest-variablesmes ()
-            testing "|x as 2" $ is $ = (list 4) (calc-x-code "|* x x" 2)
-            testing "|x as 3" $ is $ = (list 9) (calc-x-code "|* x x" 3)
-            testing "|x as 3" $ is $ =
-              list $ js/Math.pow 4 6
+          :code $ quote $ defn test-variables ()
+            is $ = ([] 4) (calc-x-code "|* x x" 2)
+            is $ = ([] 9) (calc-x-code "|* x x" 3)
+            is $ =
+              [] $ expect-number |expected-Math-result $ js/Math.pow 4 6
               calc-x-code "|pow (+ x 1) (* x 2)" 3
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.test
           :require
-            [] cljs.test :refer $ [] deftest is testing run-tests
-            [] calc-dsl.core :refer $ [] calc-x-code
+            calcit.test :refer $ [] is
+            calc-dsl.core :refer $ [] calc-x-code
+            js-ffi.contract :refer $ [] expect-number
     'calc-dsl.updater $ %{} 'FileEntry
       :defs $ {} $ 'updater
         %{} 'CodeEntry (:doc |)
@@ -600,7 +673,7 @@
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic 'String 'Number
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
