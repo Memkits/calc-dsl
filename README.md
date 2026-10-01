@@ -98,10 +98,10 @@ VITE_BASE_URL=https://cos-sh.tiye.me/Memkits/calc-dsl/pr/ yarn build
 yarn compile-cli
 yarn compile-tests
 yarn test:cli
-VITE_BASE_URL=https://cos-sh.tiye.me/Memkits/calc-dsl/pr/ node --test test/browser.test.mjs test/cdn.test.mjs test/calc.test.mjs
+node --test test/browser.test.mjs test/calc.test.mjs
 ```
 
-本地 CDN 测试检查实际 HTML 的 JS/CSS 引用；远端上传与公开访问校验由 COS Action 内置完成。
+上传与公开访问校验使用 COS Action 内置 verify 配置，不添加额外 CDN 校验脚本。
 
 原有 9 组计算测试的 42 个断言保留在 `calc-dsl.test` 中，使用内置 `calcit.test` 断言与现代 `[]` 写法。DSL 的 Math/@calcit/std FFI 需要 JavaScript 目标，因此单独生成 `test-out/` 并由 Node 测试运行，不将它们假称为 native 测试。
 

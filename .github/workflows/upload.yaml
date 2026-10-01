@@ -101,7 +101,7 @@ jobs:
         yarn compile-cli
         yarn compile-tests
         yarn test:cli
-        node --test test/browser.test.mjs test/cdn.test.mjs test/calc.test.mjs
+        node --test test/browser.test.mjs test/calc.test.mjs
 
     - name: Check COS credentials
       id: cos-credentials
