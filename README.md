@@ -102,11 +102,11 @@ yarn test:cli
 node --test test/browser.test.mjs test/calc.test.mjs
 ```
 
-上传与公开访问校验使用 COS Action 内置 verify 配置，不添加额外 CDN 校验脚本。
+HTML 引用与公开访问校验使用正式 COS Action v1.2.0 内置 verify 配置，不添加额外 CDN 校验脚本。
 
 PR 预览资源按 PR 编号、运行编号和重试次数隔离；生产 CDN 和服务器部署路径保持不变。
 
-`yarn dev` 先编译一次再启动 Vite。需要实时修改 Calcit 时，在另一个终端运行 `calcit calcit.cirru js -w`，无需增加进程管理依赖。
+`yarn dev` 先编译一次再启动 Vite。需要实时修改 Calcit 时，在另一个终端运行 `calcit calcit.cirru -w`，无需增加进程管理依赖。
 
 原有 9 组计算测试的 42 个断言保留在 `calc-dsl.test` 中，使用内置 `calcit.test` 断言与现代 `[]` 写法。DSL 的 Math/@calcit/std FFI 需要 JavaScript 目标，因此单独生成 `test-out/` 并由 Node 测试运行，不将它们假称为 native 测试。
 
