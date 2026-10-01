@@ -94,7 +94,7 @@ calc-dsl
 
 ```bash
 caps --strict --ci
-VITE_BASE_URL=https://cos-sh.tiye.me/Memkits/calc-dsl/pr/ yarn build
+VITE_BASE_URL=https://cos-sh.tiye.me/Memkits/calc-dsl/pr/47/ yarn build
 yarn compile-cli
 yarn compile-tests
 yarn test:cli

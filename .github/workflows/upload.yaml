@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: cos-upload-${{ github.repository }}-${{ github.event_name == 'pull_request' && 'pr' || 'production' }}
+  group: cos-upload-${{ github.repository }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
   cancel-in-progress: false
 
 jobs:
@@ -81,9 +81,10 @@ jobs:
       id: asset-path
       env:
         CDN_ORIGIN: https://cos-sh.tiye.me
+        PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-          asset_prefix="${GITHUB_REPOSITORY}/pr/"
+          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/"
         elif [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
           asset_prefix="${GITHUB_REPOSITORY}/"
         else
@@ -101,7 +102,7 @@ jobs:
         yarn compile-cli
         yarn compile-tests
         yarn test:cli
-        node --test test/browser.test.mjs test/calc.test.mjs
+        node --test test/browser.test.mjs test/calc.test.mjs test/cdn-build.test.mjs
 
     - name: Check COS credentials
       id: cos-credentials

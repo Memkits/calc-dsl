@@ -81,6 +81,9 @@ test('numeric input and Run evaluate x and preserve the expression', () => {
 
 test('Meta+Enter evaluates; ordinary Enter or other keys do not dispatch', () => {
   const content = fire(store, t.textarea, t.input, { value: '+ x 1' }).updated;
+  assert.equal(fire(content, t.textarea, t.keydown, {}).calls, 0);
+  assert.equal(fire(content, t.textarea, t.keydown, { keycode: null, 'meta?': null }).calls, 0);
+  assert.equal(fire(content, t.textarea, t.keydown, { keycode: 13, 'meta?': null }).calls, 0);
   assert.equal(fire(content, t.textarea, t.keydown, { keycode: 13, 'meta?': false }).calls, 0);
   assert.equal(fire(content, t.textarea, t.keydown, { keycode: 65, 'meta?': true }).calls, 0);
   const result = fire(content, t.textarea, t.keydown, { keycode: 13, 'meta?': true });
