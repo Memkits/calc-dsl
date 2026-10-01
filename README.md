@@ -90,7 +90,7 @@ calc-dsl
 
 ### Workflow
 
-项目使用 Calcit 0.27.0，仅保留 `calcit.cirru` / `deps.cirru`；`compact.cirru` / `package.cirru` 已退休，CI 禁止重新生成或提交。浏览器编辑器回调读取真实 `RespoEvent` 字段，通过单参数 Enum 更新状态。前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
+项目使用 Calcit 0.27.0，仅保留 `calcit.cirru` / `deps.cirru`。浏览器编辑器回调读取真实 `RespoEvent` 字段，通过单参数 Enum 更新状态。前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
 
 ```bash
 caps --strict --ci

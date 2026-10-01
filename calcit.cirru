@@ -438,15 +438,13 @@
           :schema $ :: 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
-            when
-              and config/dev? $ not=
-                option:unwrap-or (nth op 0) :unknown
-                , :states
-              println |Dispatch: op
+            when config/dev? $ match op
+              (:states _ _) &unit
+              _ $ println |Dispatch: op
             reset! *reel $ reel-updater updater @*reel op
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
+            :args $ [] 'Enum
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -531,7 +529,7 @@
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.schema
     'calc-dsl.test $ %{} 'FileEntry
@@ -675,7 +673,7 @@
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic 'String 'Number
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
