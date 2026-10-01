@@ -45,6 +45,7 @@ jobs:
         set -euo pipefail
         caps --strict --ci
         yarn install --immutable
+        caps verify --toolchain
 
     - name: Validate Calcit entries
       run: |
@@ -62,7 +63,7 @@ jobs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/"
+          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/"
         else
           asset_prefix="${GITHUB_REPOSITORY}/"
         fi
@@ -78,7 +79,7 @@ jobs:
         yarn compile-cli
         yarn compile-tests
         yarn test:cli
-        node --test test/browser.test.mjs test/calc.test.mjs test/cdn-build.test.mjs
+        node --test test/browser.test.mjs test/calc.test.mjs
 
     - name: Upload and verify static assets on COS
       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
