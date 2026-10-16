@@ -40,6 +40,7 @@ jobs:
       with:
         tools: calcit,caps
         caps-version: "0.1.1"
+        deps-file: deps.cirru
 
     - name: Resolve immutable dependencies
       run: |
@@ -51,11 +52,20 @@ jobs:
     - name: Validate Calcit entries
       run: |
         set -euo pipefail
+        test -f calcit.cirru
+        test -f deps.cirru
+        test ! -e compact.cirru
+        test ! -e package.cirru
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         calcit calcit.cirru test --tag unit --require-match --summary-only --format json
-        calcit calcit.cirru --check-only
-        calcit calcit.cirru --entry cli --check-only
+        calcit calcit.cirru --check-only \
+          --ns calc-dsl.comp.container --ns calc-dsl.config --ns calc-dsl.core \
+          --ns calc-dsl.main --ns calc-dsl.schema --ns calc-dsl.test --ns calc-dsl.updater \
+          --summary-only --format json
+        calcit calcit.cirru --entry cli --check-only \
+          --ns calc-dsl.core --ns calc-dsl.cli --summary-only --format json
+        calcit calcit.cirru fix --workflow strict --verify
 
     - name: Select CDN asset path
       id: asset-path

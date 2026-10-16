@@ -4,14 +4,13 @@ import * as c from '../js-out/calcit.core.mjs';
 import { comp_container } from '../js-out/calc-dsl.comp.container.mjs';
 import { store } from '../js-out/calc-dsl.schema.mjs';
 import { updater } from '../js-out/calc-dsl.updater.mjs';
-import { RespoEvent } from '../js-out/respo.schema.mjs';
 import * as d from '../js-out/respo.util.detect.mjs';
 
 const t = c.init_tags(['store', 'states', 'debugger', 'data', 'content', 'x', 'result',
   'textarea', 'input', 'button', 'value', 'keycode', 'meta?', 'click', 'keydown']);
 const read = (value, key) => c.option_$o_unwrap(c.get(value, key));
-const event = (values = {}) => c._$n__PCT__$M_(RespoEvent,
-  ...RespoEvent.fields.flatMap(field => [field, values[field.value] ?? null]));
+const event = (values, eventType) => c._$n__$M_(c.newTag('type'), eventType,
+  ...Object.entries(values).flatMap(([key, value]) => [c.newTag(key), value]));
 const render = (value) => comp_container(c._$n__$M_(t.store, value));
 const elements = (component) => {
   const result = [];
@@ -22,7 +21,7 @@ const elements = (component) => {
     const children = d.element_children(node);
     for (let i = 0; i < c.count(children); i++) {
       const child = c.option_$o_unwrap(c.nth(children, i));
-      visit(c.option_$o_unwrap(c.nth(child, 1)));
+      visit(d.child_pair_value(child));
     }
   };
   visit(component);
@@ -45,7 +44,7 @@ const fire = (source, elementTag, eventTag, values) => {
   const handler = read(d.element_event(find(source, elementTag)), eventTag);
   let updated = source;
   let calls = 0;
-  handler(event(values), (...args) => {
+  handler(event(values, eventTag), (...args) => {
     assert.equal(args.length, 1, 'Dispatch must receive one Enum');
     assert.ok(c.enum_$q_(args[0]));
     updated = updater(source, args[0], 'test-op', 0);
