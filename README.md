@@ -90,7 +90,16 @@ calc-dsl
 
 ### Workflow
 
-项目使用 Calcit 0.27.0，仅保留 `calcit.cirru` / `deps.cirru`。浏览器编辑器回调读取真实 `RespoEvent` 字段，通过单参数 Enum 更新状态。前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
+使用者注意：CLI / `@calcit/procs` 必须配对使用已发布的 **0.30.1-alpha.4**，
+不是尚未发布的 0.30.1 稳定版。Git 模块依赖使用正式 Reel 0.6.39、UI 0.7.41、
+Respo 0.16.122、js-ffi 0.2.3，不使用 alpha/hash 模块版本。
+仅保留 `calcit.cirru` / `deps.cirru`。公开的算术 API、运算表 Map、默认结果、
+参数求值顺序、编辑器、CLI 及本地存储键不变；非法开放输入现在会明确检查失败。
+解释器通过公开 `apply` 进行真实动态调用并检查数值结果，不假造静态函数签名。
+浏览器编辑器回调读取正式 Respo 实际传入的事件 Map（不是 `RespoEvent` Struct），
+通过单参数 Enum 更新状态；测试夹具也采用真实 Map 合同。
+DOM 查询复用 Respo 已发布的类型化 API，应用不新增宿主强转。
+前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
 
 ```bash
 caps --strict --ci
@@ -109,7 +118,7 @@ PR 预览资源按 PR 编号、运行编号和重试次数隔离；生产 CDN �
 release 工作流也使用同一正式 COS 1.2.0 内置校验，并与 main 的生产上传
 共用不取消任务的队列；release 触发条件、CLI 构建和服务器同步路径不变。
 
-`yarn dev` 先编译一次再启动 Vite。需要实时修改 Calcit 时，在另一个终端运行 `calcit calcit.cirru -w`，无需增加进程管理依赖。
+`yarn dev` 先编译一次再启动 Vite。需要实时修改 Calcit 时，在另一个终端运行 `calcit calcit.cirru js -w`，无需增加进程管理依赖。
 
 原有 9 组计算测试的 42 个断言保留在 `calc-dsl.test` 中，使用内置 `calcit.test` 断言与现代 `[]` 写法。DSL 的 Math/@calcit/std FFI 需要 JavaScript 目标，因此单独生成 `test-out/` 并由 Node 测试运行，不将它们假称为 native 测试。
 

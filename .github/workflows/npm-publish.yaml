@@ -34,6 +34,7 @@ jobs:
       with:
         tools: calcit,caps
         caps-version: "0.1.1"
+        deps-file: deps.cirru
 
     - name: Enable Corepack
       run: |
@@ -44,22 +45,27 @@ jobs:
     - name: Resolve immutable dependencies
       run: |
         set -euo pipefail
-        caps --ci
+        caps --strict --ci
         yarn install --immutable
         caps verify --toolchain
 
     - name: Validate Calcit entries
       run: |
         set -euo pipefail
-        test "$(calcit --version)" = "0.27.0"
+        test -f calcit.cirru
+        test -f deps.cirru
+        test ! -e compact.cirru
+        test ! -e package.cirru
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
-        calcit calcit.cirru --check-only --keep-going
-        calcit calcit.cirru --entry cli --check-only --keep-going
-        calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
-        calcit calcit.cirru analyze dynamic-methods
-        calcit calcit.cirru --entry cli analyze dynamic-methods
-        calcit calcit.cirru analyze deprecated --summary-only
+        calcit calcit.cirru test --tag unit --require-match --summary-only --format json
+        calcit calcit.cirru --check-only \
+          --ns calc-dsl.comp.container --ns calc-dsl.config --ns calc-dsl.core \
+          --ns calc-dsl.main --ns calc-dsl.schema --ns calc-dsl.test --ns calc-dsl.updater \
+          --summary-only --format json
+        calcit calcit.cirru --entry cli --check-only \
+          --ns calc-dsl.core --ns calc-dsl.cli --summary-only --format json
+        calcit calcit.cirru fix --workflow strict --verify
 
     - name: Build web assets with CDN URLs
       env:
@@ -93,8 +99,11 @@ jobs:
 
     - name: Build CLI assets
       run: |
+        set -euo pipefail
         yarn compile-cli
+        yarn compile-tests
         yarn test:cli
+        node --test test/browser.test.mjs test/calc.test.mjs
 
     - name: Display status from deploy
       run: echo "${{ steps.deploy.outputs.status }}"
