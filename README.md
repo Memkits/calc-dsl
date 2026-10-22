@@ -83,16 +83,20 @@ let
 ![](https://img.shields.io/npm/v/@memkits/calc-dsl?style=flat-square)
 
 ```bash
-yarn global add @memkits/calc-dsl
+npm install -g @memkits/calc-dsl
 
 calc-dsl
 ```
 
+npm 当前最新发布为 `0.0.3`，不等于 Git `0.0.8` 或本轮 `0.0.9` 源码候选；
+上述安装命令安装的是已有 npm 包，不包含本轮升级。源码构建的 CLI 需要先执行
+`yarn compile-cli`，打包包含 `cli.mjs` 及生成的 `cli-out/`。
+
 ### Workflow
 
-使用者注意：CLI / `@calcit/procs` 必须配对使用已发布的 **0.30.1-alpha.4**，
-不是尚未发布的 0.30.1 稳定版。Git 模块依赖使用正式 Reel 0.6.39、UI 0.7.41、
-Respo 0.16.122、js-ffi 0.2.3，不使用 alpha/hash 模块版本。
+使用者注意：CLI / `@calcit/procs` 必须配对使用正式 **0.30.1**。
+Git 模块依赖使用精确正式 Reel 0.6.41、UI 0.8.0、Respo 0.16.124、
+js-ffi 0.2.5，升级后重新安装模块，不使用 alpha/hash 模块版本。
 仅保留 `calcit.cirru` / `deps.cirru`。公开的算术 API、运算表 Map、默认结果、
 参数求值顺序、编辑器、CLI 及本地存储键不变；非法开放输入现在会明确检查失败。
 解释器通过公开 `apply` 进行真实动态调用并检查数值结果，不假造静态函数签名。
@@ -100,6 +104,9 @@ Respo 0.16.122、js-ffi 0.2.3，不使用 alpha/hash 模块版本。
 通过单参数 Enum 更新状态；测试夹具也采用真实 Map 合同。
 DOM 查询复用 Respo 已发布的类型化 API，应用不新增宿主强转。
 前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
+移除无引用的 npm `feather-icons` / `shortid` / `dayjs`，不替换 Reel 的 ID 生成。
+0.0.9 是当前源码候选，尚未发布 Git tag 或 npm；已发布版本保持原样。
+源码工作树的版本配对不代表已发布包已迁移。
 
 ```bash
 caps --strict --ci
@@ -116,7 +123,9 @@ HTML 引用与公开访问校验使用正式 COS Action v1.2.0 内置 verify 配
 PR 预览资源按 PR 编号、运行编号和重试次数隔离；生产 CDN 和服务器部署路径保持不变。
 
 release 工作流也使用同一正式 COS 1.2.0 内置校验，并与 main 的生产上传
-共用不取消任务的队列；release 触发条件、CLI 构建和服务器同步路径不变。
+共用不取消任务的队列。所有已有 CLI/计算/交互测试在部署前执行；
+release 触发条件、服务器同步路径不变。它只校验并部署 Demo，没有 npm publish 命令，
+工作流名称同步为 Release validation and Demo deployment，不宣称已发布 npm。
 
 `yarn dev` 先编译一次再启动 Vite。需要实时修改 Calcit 时，在另一个终端运行 `calcit calcit.cirru js -w`，无需增加进程管理依赖。
 

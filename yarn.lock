@@ -12,15 +12,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@calcit/procs@npm:0.30.1-alpha.4":
-  version: 0.30.1-alpha.4
-  resolution: "@calcit/procs@npm:0.30.1-alpha.4"
+"@calcit/procs@npm:0.30.1":
+  version: 0.30.1
+  resolution: "@calcit/procs@npm:0.30.1"
   dependencies:
     "@calcit/finger-vec": "npm:0.1.1"
     "@calcit/ternary-tree": "npm:0.0.26"
     "@cirru/parser.ts": "npm:0.0.10"
     "@cirru/writer.ts": "npm:^0.1.9"
-  checksum: 10c0/5613c2f4ba262f37167e4a7862449b1e8466fe5d92ecb0e2728f420f4494d37d1da5299685b61514822b535c1ad732e41caa1f35ae09e410c26b2c0c5d6d8166
+  checksum: 10c0/a0f00e3c0c9b3a5a2aea8b97e09f2692aa25039a48a2f7ccb345801fdbc546cbf3bb34ee268a58526baba9fb697781bb7929a5d1f6622816c9422c6c3ba8537b
   languageName: node
   linkType: hard
 
@@ -72,12 +72,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@memkits/calc-dsl@workspace:."
   dependencies:
-    "@calcit/procs": "npm:0.30.1-alpha.4"
+    "@calcit/procs": "npm:0.30.1"
     "@calcit/std": "npm:^0.0.3"
     bottom-tip: "npm:^0.1.5"
-    dayjs: "npm:^1.11.23"
-    feather-icons: "npm:^4.29.1"
-    shortid: "npm:^2.2.16"
     vite: "npm:8.3.3"
   bin:
     calc-dsl: ./cli.mjs
@@ -311,27 +308,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.5":
-  version: 2.5.1
-  resolution: "classnames@npm:2.5.1"
-  checksum: 10c0/afff4f77e62cea2d79c39962980bf316bacb0d7c49e13a21adaadb9221e1c6b9d3cdb829d8bb1b23c406f4e740507f37e1dcf506f7e3b7113d17c5bab787aa69
-  languageName: node
-  linkType: hard
-
-"core-js@npm:^3.1.3":
-  version: 3.49.0
-  resolution: "core-js@npm:3.49.0"
-  checksum: 10c0/2e42edb47eda38fd5368380131623c8aa5d4a6b42164125b17744bdc08fa5ebbbdd06b4b4aa6ca3663470a560b0f2fba48e18f142dfe264b0039df85bc625694
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:^1.11.23":
-  version: 1.11.23
-  resolution: "dayjs@npm:1.11.23"
-  checksum: 10c0/69ab04bf19c676e44ab50cc2fca223d265f3dafd107151ef3b0f3ad74d360c37caa602abe62f87cb25d90bd9f6bee003698af47df5b0dbf10a998b7b5f3bb3f1
-  languageName: node
-  linkType: hard
-
 "debug@npm:4, debug@npm:^4.3.4":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
@@ -401,16 +377,6 @@ __metadata:
     picomatch:
       optional: true
   checksum: 10c0/e345083c4306b3aed6cb8ec551e26c36bab5c511e99ea4576a16750ddc8d3240e63826cc624f5ae17ad4dc82e68a253213b60d556c11bfad064b7607847ed07f
-  languageName: node
-  linkType: hard
-
-"feather-icons@npm:^4.29.1":
-  version: 4.29.2
-  resolution: "feather-icons@npm:4.29.2"
-  dependencies:
-    classnames: "npm:^2.2.5"
-    core-js: "npm:^3.1.3"
-  checksum: 10c0/a23f8fbb6e96c901290308bb96267660ddd32c367074411e6a641c030448eff8041072c46e82cbf3bb3c4b2440df107e8defed09ff068e55117db6b867ca7b32
   languageName: node
   linkType: hard
 
@@ -782,7 +748,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.18, nanoid@npm:^3.3.8":
+"nanoid@npm:^3.3.18":
   version: 3.3.18
   resolution: "nanoid@npm:3.3.18"
   bin:
@@ -979,15 +945,6 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 10c0/5215ad0234e2845d4ea5bb9d836d42b03499546ddafb12075566899fc617f68794bb6f146076b6881d755de17d6c6cc73372555879ec7dce2c2feee947866ad2
-  languageName: node
-  linkType: hard
-
-"shortid@npm:^2.2.16":
-  version: 2.2.17
-  resolution: "shortid@npm:2.2.17"
-  dependencies:
-    nanoid: "npm:^3.3.8"
-  checksum: 10c0/f063b5cd251821594856a4b120389e67997b66e7b03294225ca34951dcdeada35eaaf6eb53a2c93dcbf7f8ed926031b43767f7ebfdb3a6ca3482f694c925ba33
   languageName: node
   linkType: hard
 

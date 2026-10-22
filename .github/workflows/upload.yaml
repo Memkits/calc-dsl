@@ -65,7 +65,9 @@ jobs:
           --summary-only --format json
         calcit calcit.cirru --entry cli --check-only \
           --ns calc-dsl.core --ns calc-dsl.cli --summary-only --format json
-        calcit calcit.cirru fix --workflow strict --verify
+        calcit calcit.cirru --check-only --all-defs
+        calcit calcit.cirru fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
+        calcit calcit.cirru --entry cli fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
 
     - name: Select CDN asset path
       id: asset-path
@@ -91,6 +93,7 @@ jobs:
         yarn compile-tests
         yarn test:cli
         node --test test/browser.test.mjs test/calc.test.mjs
+        npm pack --dry-run --json | jq -e '.[0].files | any(.path == "cli.mjs") and any(.path == "cli-out/calc-dsl.cli.mjs")'
 
     - name: Upload and verify static assets on COS
       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
