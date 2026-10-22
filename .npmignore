@@ -9,7 +9,6 @@ yarn.lock
 cli.js
 main.js
 index.html
-cli-out/
 js-out/
 
 .*.cirru

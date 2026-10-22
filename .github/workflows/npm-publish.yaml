@@ -1,5 +1,5 @@
 
-name: npm publish
+name: Release validation and Demo deployment
 
 on:
   release:
@@ -65,14 +65,21 @@ jobs:
           --summary-only --format json
         calcit calcit.cirru --entry cli --check-only \
           --ns calc-dsl.core --ns calc-dsl.cli --summary-only --format json
-        calcit calcit.cirru fix --workflow strict --verify
+        calcit calcit.cirru --check-only --all-defs
+        calcit calcit.cirru fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
+        calcit calcit.cirru --entry cli fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
 
-    - name: Build web assets with CDN URLs
+    - name: Build and test web and CLI assets before deployment
       env:
         VITE_BASE_URL: https://cos-sh.tiye.me/${{ github.repository }}/
       run: |
         set -euo pipefail
         yarn build
+        yarn compile-cli
+        yarn compile-tests
+        yarn test:cli
+        node --test test/browser.test.mjs test/calc.test.mjs
+        npm pack --dry-run --json | jq -e '.[0].files | any(.path == "cli.mjs") and any(.path == "cli-out/calc-dsl.cli.mjs")'
 
     - name: Upload and verify static assets on COS
       uses: worktools/cos-upload-action@06d6027dcca6413c5936e04a9b6e9f0d5ef71ba0 # v1.2.0
@@ -96,14 +103,6 @@ jobs:
         ssh_options: ''
         src: 'dist/*'
         dest: 'rsync-user@tiye.me:/web-assets/repo/${{ github.repository }}'
-
-    - name: Build CLI assets
-      run: |
-        set -euo pipefail
-        yarn compile-cli
-        yarn compile-tests
-        yarn test:cli
-        node --test test/browser.test.mjs test/calc.test.mjs
 
     - name: Display status from deploy
       run: echo "${{ steps.deploy.outputs.status }}"

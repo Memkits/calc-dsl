@@ -1,6 +1,6 @@
 {
   "name": "@memkits/calc-dsl",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Calculator DSL in Cirru",
   "main": "./cli.mjs",
   "packageManager": "yarn@4.18.0",
@@ -14,21 +14,22 @@
     "test:cli": "node --test test/cli.test.mjs"
   },
   "bin": "./cli.mjs",
+  "files": [
+    "cli.mjs",
+    "cli-out/"
+  ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:mvc-works/calcit-workflow.git"
+    "url": "git@github.com:Memkits/calc-dsl.git"
   },
   "author": "jiyinyiyong",
   "license": "MIT",
   "devDependencies": {
     "bottom-tip": "^0.1.5",
-    "feather-icons": "^4.29.1",
-    "shortid": "^2.2.16",
     "vite": "8.3.3"
   },
   "dependencies": {
-    "@calcit/procs": "0.30.1-alpha.4",
-    "@calcit/std": "^0.0.3",
-    "dayjs": "^1.11.23"
+    "@calcit/procs": "0.30.1",
+    "@calcit/std": "^0.0.3"
   }
 }
