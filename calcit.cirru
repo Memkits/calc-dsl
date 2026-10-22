@@ -485,12 +485,12 @@
             render-app!
             add-watch! *reel :changes $ fn (r p) (render-app!)
             listen-devtools! |a dispatch!
-            js/window.addEventListener |beforeunload persist-storage!
-            js/setInterval persist-storage! 60000
             let
                 raw $ js/localStorage.getItem $ option:unwrap-or (get config/site :storage-key) |
               when (js-present? raw)
                 dispatch! $ :: :hydrate-storage $ parse-cirru-edn (decode-map-as raw String)
+            js/window.addEventListener |beforeunload persist-storage!
+            js/setInterval persist-storage! 60000
             println "|App started."
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
