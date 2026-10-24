@@ -57,7 +57,7 @@ jobs:
         test ! -e compact.cirru
         test ! -e package.cirru
         calcit calcit.cirru edit format
-        git diff --exit-code -- calcit.cirru
+        git diff --quiet --exit-code -- calcit.cirru
         calcit calcit.cirru test --tag unit --require-match --summary-only --format json
         calcit calcit.cirru --check-only \
           --ns calc-dsl.comp.container --ns calc-dsl.config --ns calc-dsl.core \
