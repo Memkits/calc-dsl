@@ -16,7 +16,7 @@
       :defs $ {}
         'eval-input $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn eval-input (code)
-            option:unwrap-or
+            .unwrap-or
               first $ calc-x-code code
               , 0
           :examples $ []
@@ -59,13 +59,13 @@
           :code $ quote $ defcomp comp-container (reel)
             let
                 store $ decode-map-as
-                  option:unwrap-or (get reel :store) ({})
+                  .unwrap-or (get reel :store) ({})
                   , 'Map
                 states $ decode-map-as
-                  option:unwrap-or (get store :states) ({})
+                  .unwrap-or (get store :states) ({})
                   , 'Map
                 cursor $ or
-                  option:unwrap-or (get states :cursor) nil
+                  .unwrap-or (get states :cursor) nil
                   []
               div ({})
                 comp-debugger $ decode-map-as (>> states :debugger) (:: 'Map 'Tag 'Dynamic)
@@ -77,38 +77,44 @@
         'comp-debugger $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-debugger (states)
             let
-                cursor $ option:unwrap-or (get states :cursor) nil
+                cursor $ .unwrap-or (get states :cursor) nil
                 state $ or
-                  option:unwrap-or (get states :data) nil
+                  .unwrap-or (get states :data) nil
                   {} (:content |) (:x 1)
                     :result $ []
               div
                 {} $ :style $ assoc
-                  decode-map-as (merge ui/global ui/fullscreen ui/row) 'Map
+                  decode-map-as (.merge ui/global ui/fullscreen ui/row) 'Map
                   , :padding 8
                 textarea $ {}
-                  :value $ option:unwrap-or (get state :content) nil
+                  :value $ .unwrap-or (get state :content) nil
                   :placeholder |Content
-                  :style $ merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
+                  :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
                   :on-input $ fn (e d!)
                     hint-fn $ {}
-                      :args $ [] (:: 'Map 'Tag 'Dynamic) (quote Dynamic)
-                      :return $ quote Dynamic
+                      :args $ [] (:: 'Map 'Tag 'Dynamic)
+                        :: 'Fn $ {}
+                          :args $ [] 'Dynamic
+                          :return 'Unit
+                      :return 'Unit
                     d! $ :: :states cursor $ assoc state :content
-                      expect-string |input.value $ option:unwrap-or (get e :value) nil
+                      expect-string |input.value $ .unwrap-or (get e :value) nil
                   :on-keydown $ fn (e d!)
                     hint-fn $ {}
-                      :args $ [] (:: 'Map 'Tag 'Dynamic) (quote Dynamic)
-                      :return $ quote Dynamic
+                      :args $ [] (:: 'Map 'Tag 'Dynamic)
+                        :: 'Fn $ {}
+                          :args $ [] 'Dynamic
+                          :return 'Unit
+                      :return 'Unit
                     let
                         keycode $ let
-                            raw $ option:unwrap-or (get e :keycode) nil
+                            raw $ .unwrap-or (get e :keycode) nil
                           if
                             or (nil? raw)
                               = (js/typeof raw) |undefined
                             , 0 $ decode-map-as raw 'Number
                         meta? $ let
-                            raw $ option:unwrap-or (get e :meta?) nil
+                            raw $ .unwrap-or (get e :meta?) nil
                           if
                             or (nil? raw)
                               = (js/typeof raw) |undefined
@@ -118,47 +124,54 @@
                         d! $ :: :states cursor $ assoc state :result
                           calc-x-code
                             decode-map-as
-                              option:unwrap-or (get state :content) nil
+                              .unwrap-or (get state :content) nil
                               , 'String
                             decode-map-as
-                              option:unwrap-or (get state :x) nil
+                              .unwrap-or (get state :x) nil
                               , 'Number
+                    , &unit
                 =< 8 nil
                 div
-                  {} $ :style $ merge ui/expand ui/column
+                  {} $ :style $ .merge ui/expand ui/column
                   div ({})
                     <> $ str |x:
                     =< 8 nil
                     input $ {} (:type |number)
-                      :value $ option:unwrap-or (get state :x) nil
-                      :style $ merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
+                      :value $ .unwrap-or (get state :x) nil
+                      :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
                       :on-input $ fn (e d!)
                         hint-fn $ {}
-                          :args $ [] (:: 'Map 'Tag 'Dynamic) (quote Dynamic)
-                          :return $ quote Dynamic
+                          :args $ [] (:: 'Map 'Tag 'Dynamic)
+                            :: 'Fn $ {}
+                              :args $ [] 'Dynamic
+                              :return 'Unit
+                          :return 'Unit
                         d! $ :: :states cursor $ assoc state :x
-                          result:unwrap-or
-                            parse-float $ expect-string |input.value $ option:unwrap-or (get e :value) nil
+                          .unwrap-or
+                            parse-float $ expect-string |input.value $ .unwrap-or (get e :value) nil
                             , 0
                   =< nil 16
                   div ({})
                     button $ {} (:style ui/button) (:inner-text |Run)
                       :on-click $ fn (e d!)
                         hint-fn $ {}
-                          :args $ [] (:: 'Map 'Tag 'Dynamic) (quote Dynamic)
-                          :return $ quote Dynamic
+                          :args $ [] (:: 'Map 'Tag 'Dynamic)
+                            :: 'Fn $ {}
+                              :args $ [] 'Dynamic
+                              :return 'Unit
+                          :return 'Unit
                         d! $ :: :states cursor $ assoc state :result
                           calc-x-code
                             decode-map-as
-                              option:unwrap-or (get state :content) nil
+                              .unwrap-or (get state :content) nil
                               , 'String
                             decode-map-as
-                              option:unwrap-or (get state :x) nil
+                              .unwrap-or (get state :x) nil
                               , 'Number
                   pre $ {} $ :inner-text
                     ->
                       decode-map-as
-                        option:unwrap $ get state :result
+                        .unwrap $ get state :result
                         :: 'List 'Number
                       join-string &newline
                   div $ {} $ :style ui/expand
@@ -204,7 +217,7 @@
             :features $ #{} :js-ffi
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
-            = |dev $ option:unwrap-or (get-env |mode) |release
+            = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
           :schema $ :: 'Bool
         'site $ %{} 'CodeEntry (:doc |)
@@ -221,7 +234,7 @@
           :code $ quote $ defn bind-scope (pairs scope)
             if (empty? pairs) scope $ let[] (k v)
               decode-map-as
-                option:unwrap-or (first pairs) ([])
+                .unwrap-or (first pairs) ([])
                 , 'List
               if-not (string? k)
                 js/console.warn "|Uknown key to bind in" $ [] k v
@@ -238,12 +251,12 @@
               let
                   expr-list $ decode-map-as expr 'List
                 if
-                  = |let $ option:unwrap-or (first expr-list) |
+                  = |let $ .unwrap-or (first expr-list) |
                   call-expr
-                    option:unwrap-or (last expr-list) ([])
+                    .unwrap-or (last expr-list) ([])
                     bind-scope
                       decode-map-as
-                        option:unwrap-or (nth expr-list 1) ([])
+                        .unwrap-or (nth expr-list 1) ([])
                         :: 'List 'Dynamic
                       , scope
                   call-expr expr-list scope
@@ -254,7 +267,7 @@
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
-                v $ option:unwrap-or (first xs) 1
+                v $ .unwrap-or (first xs) 1
                 tree $ parse-cirru-list code
               map tree $ fn (expr)
                 calc-expr expr $ {} $ |x v
@@ -268,19 +281,19 @@
                 expr-list $ decode-map-as expr $ :: 'List 'Dynamic
                 body $ rest expr-list
                 expr-name $ decode-map-as
-                  option:unwrap $ first expr-list
+                  .unwrap $ first expr-list
                   , 'String
                 method-option $ get math-dict expr-name
-              if (option:some? method-option)
+              if (.some? method-option)
                 let
-                    method $ option:unwrap method-option
-                    f $ option:unwrap $ get method :f
-                    param $ option:unwrap-or (get method :param) nil
+                    method $ .unwrap method-option
+                    f $ .unwrap $ get method :f
+                    param $ .unwrap-or (get method :param) nil
                   cond
                       number? param
                       when-not
-                        = param $ count body
-                        js/console.warn "|%s takes %d arguments but got %d" expr-name param $ count body
+                        = param $ .len body
+                        js/console.warn "|%s takes %d arguments but got %d" expr-name param $ .len body
                     true nil
                   let
                       args $ map body $ fn (x) (calc-expr x scope)
@@ -314,7 +327,7 @@
             :args $ [] 'Number
             :features $ #{} :js-ffi
         'math-add $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn math-add (& xs) (reduce xs 0 &+)
+          :code $ quote $ defn math-add (& xs) (.foldl xs 0 &+)
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
@@ -355,7 +368,7 @@
             match (first xs)
               (:none) 1
               (:some x)
-                reduce (rest xs) x &/
+                .foldl (rest xs) x &/
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
@@ -372,17 +385,17 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Number
         'math-max $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn math-max (x & xs) (reduce xs x &max)
+          :code $ quote $ defn math-max (x & xs) (.foldl xs x &max)
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ [] 'Number
         'math-min $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn math-min (x & xs) (reduce xs x &min)
+          :code $ quote $ defn math-min (x & xs) (.foldl xs x &min)
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ [] 'Number
         'math-mul $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn math-mul (& xs) (reduce xs 1 &*)
+          :code $ quote $ defn math-mul (& xs) (.foldl xs 1 &*)
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
@@ -414,7 +427,7 @@
             match (first xs)
               (:none) 0
               (:some x)
-                reduce (rest xs) x &-
+                .foldl (rest xs) x &-
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
             :args $ []
@@ -434,9 +447,9 @@
                   , 3.141592653589793
                 (= x |tau) 6.283185307179586
                 (= x |e) 2.718281828459045
-                (result:ok? parsed) (result:unwrap-or parsed 0)
+                (.ok? parsed) (.unwrap-or parsed 0)
                 (contains? scope x)
-                  option:unwrap-or (get scope x) 0
+                  .unwrap-or (get scope x) 0
                 true $ do (println |unknown x) 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
@@ -486,7 +499,7 @@
             add-watch! *reel :changes $ fn (r p) (render-app!)
             listen-devtools! |a dispatch!
             let
-                raw $ js/localStorage.getItem $ option:unwrap-or (get config/site :storage-key) |
+                raw $ js/localStorage.getItem $ .unwrap-or (get config/site :storage-key) |
               when (js-present? raw)
                 dispatch! $ :: :hydrate-storage $ parse-cirru-edn (decode-map-as raw String)
             js/window.addEventListener |beforeunload persist-storage!
@@ -498,14 +511,14 @@
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
-            option:unwrap $ query-selector |.app
+            .unwrap $ query-selector |.app
           :examples $ []
           :schema $ :: 'respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! (& _events)
             js/localStorage.setItem
-              option:unwrap-or (get config/site :storage-key) |
-              format-cirru-edn $ option:unwrap-or (get @*reel :store) nil
+              .unwrap-or (get config/site :storage-key) |
+              format-cirru-edn $ .unwrap-or (get @*reel :store) nil
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Unit)
@@ -705,7 +718,7 @@
             match op
               (:states cursor s)
                 assoc store :states $ update-state-tree
-                  option:unwrap-or (get store :states) ({})
+                  .unwrap-or (get store :states) ({})
                   decode-map-as cursor $ :: 'List 'Dynamic
                   , s
               (:hydrate-storage d)

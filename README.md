@@ -88,15 +88,15 @@ npm install -g @memkits/calc-dsl
 calc-dsl
 ```
 
-npm 当前最新发布为 `0.0.3`，不等于 Git `0.0.8` 或本轮 `0.0.9` 源码候选；
+npm 当前最新发布为 `0.0.3`，不等于已发布的 Git `0.0.9` 或本轮源码；
 上述安装命令安装的是已有 npm 包，不包含本轮升级。源码构建的 CLI 需要先执行
 `yarn compile-cli`，打包包含 `cli.mjs` 及生成的 `cli-out/`。
 
 ### Workflow
 
 使用者注意：CLI / `@calcit/procs` 必须配对使用正式 **0.30.1**。
-Git 模块依赖使用精确正式 Reel 0.6.41、UI 0.8.0、Respo 0.16.124、
-js-ffi 0.2.5，升级后重新安装模块，不使用 alpha/hash 模块版本。
+Git 模块依赖使用精确正式 Reel 0.6.42、UI 0.8.1、Respo 0.16.126、
+js-ffi 0.2.6，升级后重新安装模块，不使用 alpha/hash 模块版本。
 仅保留 `calcit.cirru` / `deps.cirru`。公开的算术 API、运算表 Map、默认结果、
 参数求值顺序、编辑器、CLI 及本地存储键不变；非法开放输入现在会明确检查失败。
 解释器通过公开 `apply` 进行真实动态调用并检查数值结果，不假造静态函数签名。
@@ -105,8 +105,12 @@ js-ffi 0.2.5，升级后重新安装模块，不使用 alpha/hash 模块版本�
 DOM 查询复用 Respo 已发布的类型化 API，应用不新增宿主强转。
 前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
 移除无引用的 npm `feather-icons` / `shortid` / `dayjs`，不替换 Reel 的 ID 生成。
-0.0.9 是当前源码候选，尚未发布 Git tag 或 npm；已发布版本保持原样。
+Git `0.0.9` tag 已存在；本轮迁移尚未发布新的 Git tag 或 npm，已发布版本保持原样。
 源码工作树的版本配对不代表已发布包已迁移。
+源码改用公开的 `.merge` / `.len` / `.foldl` 和 Option / Result 方法，
+不改变运算表、左右参数顺序、左折叠初始值或空/单参数结果。
+四个编辑器事件回调明确接收 `Fn<Dynamic, Unit>` 派发函数并返回 `Unit`；
+按键不触发计算时仍不派发。保留原事件 Map 检查和 JS `hud!` 错误提示。
 Demo 先恢复存档再注册卸载/每分钟自动保存；恢复失败继续报错，但不安装这两项保存，
 避免初始状态覆盖待恢复原文。存储 key 和有效存档格式不变。
 
