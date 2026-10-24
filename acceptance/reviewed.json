@@ -1,0 +1,5074 @@
+[
+  {
+    "code": [
+      "def",
+      "calcit-dirname",
+      "|"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.$meta/calcit-dirname",
+    "js_ffi": null,
+    "schema": null,
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "calcit-filename",
+      "|calcit.cirru"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.$meta/calcit-filename",
+    "js_ffi": null,
+    "schema": null,
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "eval-input",
+      [
+        "code"
+      ],
+      [
+        "option:unwrap-or",
+        [
+          "first",
+          [
+            "calc-x-code",
+            "code"
+          ]
+        ],
+        "0"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.cli/eval-input",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'String"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "handle-exit",
+      [],
+      [
+        "js/process.exit",
+        "0"
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.cli/handle-exit",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "main!",
+      [],
+      [
+        "println",
+        "|\nStarting Calc DSL REPL.\nSupported operations https://github.com/Memkits/calc-dsl#operations.\n"
+      ],
+      [
+        "let",
+        [
+          [
+            "instance",
+            [
+              "repl/start",
+              [
+                "js-object",
+                [
+                  ":prompt",
+                  "|> "
+                ],
+                [
+                  ":eval",
+                  [
+                    "fn",
+                    [
+                      "input",
+                      "context",
+                      "filename",
+                      "cb"
+                    ],
+                    [
+                      "try",
+                      [
+                        "cb",
+                        "nil",
+                        [
+                          "eval-input",
+                          [
+                            "trim",
+                            [
+                              "decode-map-as",
+                              "input",
+                              "'String"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "fn",
+                        [
+                          "error"
+                        ],
+                        [
+                          "cb",
+                          "error"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          ".!on",
+          "instance",
+          "|exit",
+          "handle-exit"
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.cli/main!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "reload!",
+      [],
+      [
+        "println",
+        "|reloading..."
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.cli/reload!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defcomp",
+      "comp-container",
+      [
+        "reel"
+      ],
+      [
+        "let",
+        [
+          [
+            "store",
+            [
+              "decode-map-as",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "reel",
+                  ":store"
+                ],
+                [
+                  "{}"
+                ]
+              ],
+              "'Map"
+            ]
+          ],
+          [
+            "states",
+            [
+              "decode-map-as",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "store",
+                  ":states"
+                ],
+                [
+                  "{}"
+                ]
+              ],
+              "'Map"
+            ]
+          ],
+          [
+            "cursor",
+            [
+              "or",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "states",
+                  ":cursor"
+                ],
+                "nil"
+              ],
+              [
+                "[]"
+              ]
+            ]
+          ]
+        ],
+        [
+          "div",
+          [
+            "{}"
+          ],
+          [
+            "comp-debugger",
+            [
+              "decode-map-as",
+              [
+                ">>",
+                "states",
+                ":debugger"
+              ],
+              [
+                "::",
+                "'Map",
+                "'Tag",
+                "'Dynamic"
+              ]
+            ]
+          ],
+          [
+            "when",
+            "dev?",
+            [
+              "comp-reel",
+              [
+                ">>",
+                "states",
+                ":reel"
+              ],
+              "reel",
+              [
+                "{}"
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.comp.container/comp-container",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'respo.schema/Component"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          [
+            "::",
+            "'Map",
+            "'Tag",
+            "'Dynamic"
+          ]
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defcomp",
+      "comp-debugger",
+      [
+        "states"
+      ],
+      [
+        "let",
+        [
+          [
+            "cursor",
+            [
+              "option:unwrap-or",
+              [
+                "get",
+                "states",
+                ":cursor"
+              ],
+              "nil"
+            ]
+          ],
+          [
+            "state",
+            [
+              "or",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "states",
+                  ":data"
+                ],
+                "nil"
+              ],
+              [
+                "{}",
+                [
+                  ":content",
+                  "|"
+                ],
+                [
+                  ":x",
+                  "1"
+                ],
+                [
+                  ":result",
+                  [
+                    "[]"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "div",
+          [
+            "{}",
+            [
+              ":style",
+              [
+                "assoc",
+                [
+                  "decode-map-as",
+                  [
+                    "merge",
+                    "ui/global",
+                    "ui/fullscreen",
+                    "ui/row"
+                  ],
+                  "'Map"
+                ],
+                ":padding",
+                "8"
+              ]
+            ]
+          ],
+          [
+            "textarea",
+            [
+              "{}",
+              [
+                ":value",
+                [
+                  "option:unwrap-or",
+                  [
+                    "get",
+                    "state",
+                    ":content"
+                  ],
+                  "nil"
+                ]
+              ],
+              [
+                ":placeholder",
+                "|Content"
+              ],
+              [
+                ":style",
+                [
+                  "merge",
+                  "ui/textarea",
+                  [
+                    "{}",
+                    [
+                      ":width",
+                      "300"
+                    ],
+                    [
+                      ":font-family",
+                      "ui/font-code"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                ":on-input",
+                [
+                  "fn",
+                  [
+                    "e",
+                    "d!"
+                  ],
+                  [
+                    "hint-fn",
+                    [
+                      "{}",
+                      [
+                        ":args",
+                        [
+                          "[]",
+                          [
+                            "::",
+                            "'Map",
+                            "'Tag",
+                            "'Dynamic"
+                          ],
+                          [
+                            "quote",
+                            "Dynamic"
+                          ]
+                        ]
+                      ],
+                      [
+                        ":return",
+                        [
+                          "quote",
+                          "Dynamic"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "d!",
+                    [
+                      "::",
+                      ":states",
+                      "cursor",
+                      [
+                        "assoc",
+                        "state",
+                        ":content",
+                        [
+                          "expect-string",
+                          "|input.value",
+                          [
+                            "option:unwrap-or",
+                            [
+                              "get",
+                              "e",
+                              ":value"
+                            ],
+                            "nil"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                ":on-keydown",
+                [
+                  "fn",
+                  [
+                    "e",
+                    "d!"
+                  ],
+                  [
+                    "hint-fn",
+                    [
+                      "{}",
+                      [
+                        ":args",
+                        [
+                          "[]",
+                          [
+                            "::",
+                            "'Map",
+                            "'Tag",
+                            "'Dynamic"
+                          ],
+                          [
+                            "quote",
+                            "Dynamic"
+                          ]
+                        ]
+                      ],
+                      [
+                        ":return",
+                        [
+                          "quote",
+                          "Dynamic"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "let",
+                    [
+                      [
+                        "keycode",
+                        [
+                          "let",
+                          [
+                            [
+                              "raw",
+                              [
+                                "option:unwrap-or",
+                                [
+                                  "get",
+                                  "e",
+                                  ":keycode"
+                                ],
+                                "nil"
+                              ]
+                            ]
+                          ],
+                          [
+                            "if",
+                            [
+                              "or",
+                              [
+                                "nil?",
+                                "raw"
+                              ],
+                              [
+                                "=",
+                                [
+                                  "js/typeof",
+                                  "raw"
+                                ],
+                                "|undefined"
+                              ]
+                            ],
+                            "0",
+                            [
+                              "decode-map-as",
+                              "raw",
+                              "'Number"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "meta?",
+                        [
+                          "let",
+                          [
+                            [
+                              "raw",
+                              [
+                                "option:unwrap-or",
+                                [
+                                  "get",
+                                  "e",
+                                  ":meta?"
+                                ],
+                                "nil"
+                              ]
+                            ]
+                          ],
+                          [
+                            "if",
+                            [
+                              "or",
+                              [
+                                "nil?",
+                                "raw"
+                              ],
+                              [
+                                "=",
+                                [
+                                  "js/typeof",
+                                  "raw"
+                                ],
+                                "|undefined"
+                              ]
+                            ],
+                            "false",
+                            [
+                              "decode-map-as",
+                              "raw",
+                              "'Bool"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ],
+                    [
+                      "when",
+                      [
+                        "and",
+                        [
+                          "=",
+                          "13",
+                          "keycode"
+                        ],
+                        "meta?"
+                      ],
+                      [
+                        "d!",
+                        [
+                          "::",
+                          ":states",
+                          "cursor",
+                          [
+                            "assoc",
+                            "state",
+                            ":result",
+                            [
+                              "calc-x-code",
+                              [
+                                "decode-map-as",
+                                [
+                                  "option:unwrap-or",
+                                  [
+                                    "get",
+                                    "state",
+                                    ":content"
+                                  ],
+                                  "nil"
+                                ],
+                                "'String"
+                              ],
+                              [
+                                "decode-map-as",
+                                [
+                                  "option:unwrap-or",
+                                  [
+                                    "get",
+                                    "state",
+                                    ":x"
+                                  ],
+                                  "nil"
+                                ],
+                                "'Number"
+                              ]
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "=<",
+            "8",
+            "nil"
+          ],
+          [
+            "div",
+            [
+              "{}",
+              [
+                ":style",
+                [
+                  "merge",
+                  "ui/expand",
+                  "ui/column"
+                ]
+              ]
+            ],
+            [
+              "div",
+              [
+                "{}"
+              ],
+              [
+                "<>",
+                [
+                  "str",
+                  "|x:"
+                ]
+              ],
+              [
+                "=<",
+                "8",
+                "nil"
+              ],
+              [
+                "input",
+                [
+                  "{}",
+                  [
+                    ":type",
+                    "|number"
+                  ],
+                  [
+                    ":value",
+                    [
+                      "option:unwrap-or",
+                      [
+                        "get",
+                        "state",
+                        ":x"
+                      ],
+                      "nil"
+                    ]
+                  ],
+                  [
+                    ":style",
+                    [
+                      "merge",
+                      "ui/input",
+                      [
+                        "{}",
+                        [
+                          ":width",
+                          "80"
+                        ],
+                        [
+                          ":font-family",
+                          "ui/font-code"
+                        ],
+                        [
+                          ":min-width",
+                          "60"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    ":on-input",
+                    [
+                      "fn",
+                      [
+                        "e",
+                        "d!"
+                      ],
+                      [
+                        "hint-fn",
+                        [
+                          "{}",
+                          [
+                            ":args",
+                            [
+                              "[]",
+                              [
+                                "::",
+                                "'Map",
+                                "'Tag",
+                                "'Dynamic"
+                              ],
+                              [
+                                "quote",
+                                "Dynamic"
+                              ]
+                            ]
+                          ],
+                          [
+                            ":return",
+                            [
+                              "quote",
+                              "Dynamic"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "d!",
+                        [
+                          "::",
+                          ":states",
+                          "cursor",
+                          [
+                            "assoc",
+                            "state",
+                            ":x",
+                            [
+                              "result:unwrap-or",
+                              [
+                                "parse-float",
+                                [
+                                  "expect-string",
+                                  "|input.value",
+                                  [
+                                    "option:unwrap-or",
+                                    [
+                                      "get",
+                                      "e",
+                                      ":value"
+                                    ],
+                                    "nil"
+                                  ]
+                                ]
+                              ],
+                              "0"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=<",
+              "nil",
+              "16"
+            ],
+            [
+              "div",
+              [
+                "{}"
+              ],
+              [
+                "button",
+                [
+                  "{}",
+                  [
+                    ":style",
+                    "ui/button"
+                  ],
+                  [
+                    ":inner-text",
+                    "|Run"
+                  ],
+                  [
+                    ":on-click",
+                    [
+                      "fn",
+                      [
+                        "e",
+                        "d!"
+                      ],
+                      [
+                        "hint-fn",
+                        [
+                          "{}",
+                          [
+                            ":args",
+                            [
+                              "[]",
+                              [
+                                "::",
+                                "'Map",
+                                "'Tag",
+                                "'Dynamic"
+                              ],
+                              [
+                                "quote",
+                                "Dynamic"
+                              ]
+                            ]
+                          ],
+                          [
+                            ":return",
+                            [
+                              "quote",
+                              "Dynamic"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "d!",
+                        [
+                          "::",
+                          ":states",
+                          "cursor",
+                          [
+                            "assoc",
+                            "state",
+                            ":result",
+                            [
+                              "calc-x-code",
+                              [
+                                "decode-map-as",
+                                [
+                                  "option:unwrap-or",
+                                  [
+                                    "get",
+                                    "state",
+                                    ":content"
+                                  ],
+                                  "nil"
+                                ],
+                                "'String"
+                              ],
+                              [
+                                "decode-map-as",
+                                [
+                                  "option:unwrap-or",
+                                  [
+                                    "get",
+                                    "state",
+                                    ":x"
+                                  ],
+                                  "nil"
+                                ],
+                                "'Number"
+                              ]
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "pre",
+              [
+                "{}",
+                [
+                  ":inner-text",
+                  [
+                    "->",
+                    [
+                      "decode-map-as",
+                      [
+                        "option:unwrap",
+                        [
+                          "get",
+                          "state",
+                          ":result"
+                        ]
+                      ],
+                      [
+                        "::",
+                        "'List",
+                        "'Number"
+                      ]
+                    ],
+                    [
+                      "join-string",
+                      "&newline"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "div",
+              [
+                "{}",
+                [
+                  ":style",
+                  "ui/expand"
+                ]
+              ]
+            ],
+            [
+              "div",
+              [
+                "{}"
+              ],
+              [
+                "<>",
+                "|Docs: "
+              ],
+              [
+                "a",
+                [
+                  "{}",
+                  [
+                    ":href",
+                    "|http://github.com/Memkits/calc-dsl/"
+                  ],
+                  [
+                    ":target",
+                    "|_blank"
+                  ],
+                  [
+                    ":inner-text",
+                    "|http://github.com/Memkits/calc-dsl/"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.comp.container/comp-debugger",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'respo.schema/Component"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          [
+            "::",
+            "'Map",
+            "'Tag",
+            "'Dynamic"
+          ]
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "cdn?",
+      [
+        "detect-cdn?"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.config/cdn?",
+    "js_ffi": null,
+    "schema": "'Bool",
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "detect-cdn?",
+      [],
+      [
+        "cond",
+        [
+          [
+            "exists?",
+            "js/window"
+          ],
+          "false"
+        ],
+        [
+          [
+            "exists?",
+            "js/process"
+          ],
+          [
+            "let",
+            [
+              [
+                "raw",
+                "js/process.env.cdn"
+              ]
+            ],
+            [
+              "if",
+              [
+                "js-present?",
+                "raw"
+              ],
+              [
+                "=",
+                "|true",
+                [
+                  "expect-string",
+                  "|process.env.cdn",
+                  "raw"
+                ]
+              ],
+              "false"
+            ]
+          ]
+        ],
+        [
+          "true",
+          "false"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.config/detect-cdn?",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Bool"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "dev?",
+      [
+        "=",
+        "|dev",
+        [
+          "option:unwrap-or",
+          [
+            "get-env",
+            "|mode"
+          ],
+          "|release"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.config/dev?",
+    "js_ffi": null,
+    "schema": "'Bool",
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "site",
+      [
+        "{}",
+        [
+          ":dev-ui",
+          "|http://localhost:8100/main-fonts.css"
+        ],
+        [
+          ":release-ui",
+          "|http://cdn.tiye.me/favored-fonts/main-fonts.css"
+        ],
+        [
+          ":cdn-url",
+          "|http://cdn.tiye.me/calc-dsl/"
+        ],
+        [
+          ":title",
+          "|Calc DSL"
+        ],
+        [
+          ":icon",
+          "|http://cdn.tiye.me/logo/memkits.png"
+        ],
+        [
+          ":storage-key",
+          "|calc-dsl"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.config/site",
+    "js_ffi": null,
+    "schema": [
+      "::",
+      "'Map",
+      "'Tag",
+      "'String"
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "bind-scope",
+      [
+        "pairs",
+        "scope"
+      ],
+      [
+        "if",
+        [
+          "empty?",
+          "pairs"
+        ],
+        "scope",
+        [
+          "let[]",
+          [
+            "k",
+            "v"
+          ],
+          [
+            "decode-map-as",
+            [
+              "option:unwrap-or",
+              [
+                "first",
+                "pairs"
+              ],
+              [
+                "[]"
+              ]
+            ],
+            "'List"
+          ],
+          [
+            "if-not",
+            [
+              "string?",
+              "k"
+            ],
+            [
+              "js/console.warn",
+              "|Uknown key to bind in",
+              [
+                "[]",
+                "k",
+                "v"
+              ]
+            ]
+          ],
+          [
+            "recur",
+            [
+              "rest",
+              "pairs"
+            ],
+            [
+              "assoc",
+              "scope",
+              [
+                "decode-map-as",
+                "k",
+                "'String"
+              ],
+              [
+                "calc-expr",
+                "v",
+                "scope"
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/bind-scope",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          [
+            "::",
+            "'List",
+            "'Dynamic"
+          ],
+          [
+            "::",
+            "'Map",
+            "'String",
+            "'Number"
+          ]
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ],
+      [
+        ":return",
+        [
+          "::",
+          "'Map",
+          "'String",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "calc-expr",
+      [
+        "expr",
+        "scope"
+      ],
+      [
+        "if",
+        [
+          "string?",
+          "expr"
+        ],
+        [
+          "parse-literal",
+          "expr",
+          "scope"
+        ],
+        [
+          "let",
+          [
+            [
+              "expr-list",
+              [
+                "decode-map-as",
+                "expr",
+                "'List"
+              ]
+            ]
+          ],
+          [
+            "if",
+            [
+              "=",
+              "|let",
+              [
+                "option:unwrap-or",
+                [
+                  "first",
+                  "expr-list"
+                ],
+                "|"
+              ]
+            ],
+            [
+              "call-expr",
+              [
+                "option:unwrap-or",
+                [
+                  "last",
+                  "expr-list"
+                ],
+                [
+                  "[]"
+                ]
+              ],
+              [
+                "bind-scope",
+                [
+                  "decode-map-as",
+                  [
+                    "option:unwrap-or",
+                    [
+                      "nth",
+                      "expr-list",
+                      "1"
+                    ],
+                    [
+                      "[]"
+                    ]
+                  ],
+                  [
+                    "::",
+                    "'List",
+                    "'Dynamic"
+                  ]
+                ],
+                "scope"
+              ]
+            ],
+            [
+              "call-expr",
+              "expr-list",
+              "scope"
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/calc-expr",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Dynamic",
+          [
+            "::",
+            "'Map",
+            "'String",
+            "'Number"
+          ]
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "calc-x-code",
+      [
+        "code",
+        "&",
+        "xs"
+      ],
+      [
+        "let",
+        [
+          [
+            "v",
+            [
+              "option:unwrap-or",
+              [
+                "first",
+                "xs"
+              ],
+              "1"
+            ]
+          ],
+          [
+            "tree",
+            [
+              "parse-cirru-list",
+              "code"
+            ]
+          ]
+        ],
+        [
+          "map",
+          "tree",
+          [
+            "fn",
+            [
+              "expr"
+            ],
+            [
+              "calc-expr",
+              "expr",
+              [
+                "{}",
+                [
+                  "|x",
+                  "v"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/calc-x-code",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'String"
+        ]
+      ],
+      [
+        ":return",
+        [
+          "::",
+          "'List",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "call-expr",
+      [
+        "expr",
+        "scope"
+      ],
+      [
+        "let",
+        [
+          [
+            "expr-list",
+            [
+              "decode-map-as",
+              "expr",
+              [
+                "::",
+                "'List",
+                "'Dynamic"
+              ]
+            ]
+          ],
+          [
+            "body",
+            [
+              "rest",
+              "expr-list"
+            ]
+          ],
+          [
+            "expr-name",
+            [
+              "decode-map-as",
+              [
+                "option:unwrap",
+                [
+                  "first",
+                  "expr-list"
+                ]
+              ],
+              "'String"
+            ]
+          ],
+          [
+            "method-option",
+            [
+              "get",
+              "math-dict",
+              "expr-name"
+            ]
+          ]
+        ],
+        [
+          "if",
+          [
+            "option:some?",
+            "method-option"
+          ],
+          [
+            "let",
+            [
+              [
+                "method",
+                [
+                  "option:unwrap",
+                  "method-option"
+                ]
+              ],
+              [
+                "f",
+                [
+                  "option:unwrap",
+                  [
+                    "get",
+                    "method",
+                    ":f"
+                  ]
+                ]
+              ],
+              [
+                "param",
+                [
+                  "option:unwrap-or",
+                  [
+                    "get",
+                    "method",
+                    ":param"
+                  ],
+                  "nil"
+                ]
+              ]
+            ],
+            [
+              "cond",
+              [
+                [
+                  "number?",
+                  "param"
+                ],
+                [
+                  "when-not",
+                  [
+                    "=",
+                    "param",
+                    [
+                      "count",
+                      "body"
+                    ]
+                  ],
+                  [
+                    "js/console.warn",
+                    "|%s takes %d arguments but got %d",
+                    "expr-name",
+                    "param",
+                    [
+                      "count",
+                      "body"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "true",
+                "nil"
+              ]
+            ],
+            [
+              "let",
+              [
+                [
+                  "args",
+                  [
+                    "map",
+                    "body",
+                    [
+                      "fn",
+                      [
+                        "x"
+                      ],
+                      [
+                        "calc-expr",
+                        "x",
+                        "scope"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "if",
+                [
+                  "fn?",
+                  "f"
+                ],
+                [
+                  "decode-map-as",
+                  [
+                    "apply",
+                    "f",
+                    "args"
+                  ],
+                  "'Number"
+                ],
+                [
+                  "raise",
+                  "|Invalid math function"
+                ]
+              ]
+            ]
+          ],
+          [
+            "do",
+            [
+              "println",
+              "|Unknown expression:",
+              "expr"
+            ],
+            "1"
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/call-expr",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Dynamic",
+          [
+            "::",
+            "'Map",
+            "'String",
+            "'Number"
+          ]
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "ffi-log",
+      [
+        "x"
+      ],
+      [
+        "decode-map-as",
+        [
+          "js/Math.log",
+          "x"
+        ],
+        "'Number"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/ffi-log",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "ffi-tan",
+      [
+        "x"
+      ],
+      [
+        "decode-map-as",
+        [
+          "js/Math.tan",
+          "x"
+        ],
+        "'Number"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/ffi-tan",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "ffi-trunc",
+      [
+        "x"
+      ],
+      [
+        "decode-map-as",
+        [
+          "js/Math.trunc",
+          "x"
+        ],
+        "'Number"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/ffi-trunc",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-add",
+      [
+        "&",
+        "xs"
+      ],
+      [
+        "reduce",
+        "xs",
+        "0",
+        "&+"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-add",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "math-dict",
+      [
+        "{}",
+        [
+          "|+",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-add"
+            ]
+          ]
+        ],
+        [
+          "|-",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-sub"
+            ]
+          ]
+        ],
+        [
+          "|*",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-mul"
+            ]
+          ]
+        ],
+        [
+          "|/",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-div"
+            ]
+          ]
+        ],
+        [
+          "|max",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-max"
+            ]
+          ]
+        ],
+        [
+          "|min",
+          [
+            "{}",
+            [
+              ":param",
+              "nil"
+            ],
+            [
+              ":f",
+              "math-min"
+            ]
+          ]
+        ],
+        [
+          "|sin",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "sin"
+            ]
+          ]
+        ],
+        [
+          "|cos",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "cos"
+            ]
+          ]
+        ],
+        [
+          "|tan",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "ffi-tan"
+            ]
+          ]
+        ],
+        [
+          "|abs",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "abs"
+            ]
+          ]
+        ],
+        [
+          "|round",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "round"
+            ]
+          ]
+        ],
+        [
+          "|ceil",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "ceil"
+            ]
+          ]
+        ],
+        [
+          "|floor",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "floor"
+            ]
+          ]
+        ],
+        [
+          "|log",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "ffi-log"
+            ]
+          ]
+        ],
+        [
+          "|pow",
+          [
+            "{}",
+            [
+              ":param",
+              "2"
+            ],
+            [
+              ":f",
+              "pow"
+            ]
+          ]
+        ],
+        [
+          "|root",
+          [
+            "{}",
+            [
+              ":param",
+              "2"
+            ],
+            [
+              ":f",
+              "math-root"
+            ]
+          ]
+        ],
+        [
+          "|mod",
+          [
+            "{}",
+            [
+              ":param",
+              "2"
+            ],
+            [
+              ":f",
+              "math-rem"
+            ]
+          ]
+        ],
+        [
+          "|rem",
+          [
+            "{}",
+            [
+              ":param",
+              "2"
+            ],
+            [
+              ":f",
+              "math-rem"
+            ]
+          ]
+        ],
+        [
+          "|%",
+          [
+            "{}",
+            [
+              ":param",
+              "2"
+            ],
+            [
+              ":f",
+              "math-quot"
+            ]
+          ]
+        ],
+        [
+          "|sqrt",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "sqrt"
+            ]
+          ]
+        ],
+        [
+          "|invert",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "math-invert"
+            ]
+          ]
+        ],
+        [
+          "|negate",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "math-negate"
+            ]
+          ]
+        ],
+        [
+          "|inc",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "inc"
+            ]
+          ]
+        ],
+        [
+          "|dec",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "dec"
+            ]
+          ]
+        ],
+        [
+          "|rand",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "rand"
+            ]
+          ]
+        ],
+        [
+          "|rand-int",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "rand-int"
+            ]
+          ]
+        ],
+        [
+          "|trunc",
+          [
+            "{}",
+            [
+              ":param",
+              "1"
+            ],
+            [
+              ":f",
+              "ffi-trunc"
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-dict",
+    "js_ffi": null,
+    "schema": [
+      "::",
+      "'Map",
+      "'String",
+      [
+        "::",
+        "'Map",
+        "'Tag",
+        "'Dynamic"
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-div",
+      [
+        "&",
+        "xs"
+      ],
+      [
+        "match",
+        [
+          "first",
+          "xs"
+        ],
+        [
+          [
+            ":none"
+          ],
+          "1"
+        ],
+        [
+          [
+            ":some",
+            "x"
+          ],
+          [
+            "reduce",
+            [
+              "rest",
+              "xs"
+            ],
+            "x",
+            "&/"
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-div",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": [
+      {
+        "code": [
+          "do",
+          [
+            "is=",
+            "1",
+            [
+              "math-div"
+            ]
+          ],
+          [
+            "is=",
+            "2",
+            [
+              "math-div",
+              "2"
+            ]
+          ],
+          [
+            "is=",
+            "1",
+            [
+              "math-div",
+              "12",
+              "4",
+              "3"
+            ]
+          ]
+        ],
+        "name": "preserves-zero-unary-and-left-fold",
+        "tags": [
+          "unit"
+        ]
+      }
+    ]
+  },
+  {
+    "code": [
+      "defn",
+      "math-invert",
+      [
+        "x"
+      ],
+      [
+        "/",
+        "1",
+        "x"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-invert",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-max",
+      [
+        "x",
+        "&",
+        "xs"
+      ],
+      [
+        "reduce",
+        "xs",
+        "x",
+        "&max"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-max",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-min",
+      [
+        "x",
+        "&",
+        "xs"
+      ],
+      [
+        "reduce",
+        "xs",
+        "x",
+        "&min"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-min",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-mul",
+      [
+        "&",
+        "xs"
+      ],
+      [
+        "reduce",
+        "xs",
+        "1",
+        "&*"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-mul",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-negate",
+      [
+        "x"
+      ],
+      [
+        "-",
+        "0",
+        "x"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-negate",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-quot",
+      [
+        "x",
+        "y"
+      ],
+      [
+        "ffi-trunc",
+        [
+          "/",
+          "x",
+          "y"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-quot",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number",
+          "'Number"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-rem",
+      [
+        "x",
+        "y"
+      ],
+      [
+        "&number:rem",
+        "x",
+        "y"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-rem",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-root",
+      [
+        "x",
+        "y"
+      ],
+      [
+        "pow",
+        "x",
+        [
+          "/",
+          "1",
+          "y"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-root",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Number",
+          "'Number"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "math-sub",
+      [
+        "&",
+        "xs"
+      ],
+      [
+        "match",
+        [
+          "first",
+          "xs"
+        ],
+        [
+          [
+            ":none"
+          ],
+          "0"
+        ],
+        [
+          [
+            ":some",
+            "x"
+          ],
+          [
+            "reduce",
+            [
+              "rest",
+              "xs"
+            ],
+            "x",
+            "&-"
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/math-sub",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Number"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": [
+      {
+        "code": [
+          "do",
+          [
+            "is=",
+            "0",
+            [
+              "math-sub"
+            ]
+          ],
+          [
+            "is=",
+            "2",
+            [
+              "math-sub",
+              "2"
+            ]
+          ],
+          [
+            "is=",
+            "5",
+            [
+              "math-sub",
+              "10",
+              "3",
+              "2"
+            ]
+          ]
+        ],
+        "name": "preserves-zero-unary-and-left-fold",
+        "tags": [
+          "unit"
+        ]
+      }
+    ]
+  },
+  {
+    "code": [
+      "defn",
+      "parse-literal",
+      [
+        "x",
+        "scope"
+      ],
+      [
+        "let",
+        [
+          [
+            "parsed",
+            [
+              "parse-float",
+              "x"
+            ]
+          ]
+        ],
+        [
+          "cond",
+          [
+            [
+              "=",
+              "x",
+              "|pi"
+            ],
+            "3.141592653589793"
+          ],
+          [
+            [
+              "=",
+              "x",
+              "|tau"
+            ],
+            "6.283185307179586"
+          ],
+          [
+            [
+              "=",
+              "x",
+              "|e"
+            ],
+            "2.718281828459045"
+          ],
+          [
+            [
+              "result:ok?",
+              "parsed"
+            ],
+            [
+              "result:unwrap-or",
+              "parsed",
+              "0"
+            ]
+          ],
+          [
+            [
+              "contains?",
+              "scope",
+              "x"
+            ],
+            [
+              "option:unwrap-or",
+              [
+                "get",
+                "scope",
+                "x"
+              ],
+              "0"
+            ]
+          ],
+          [
+            "true",
+            [
+              "do",
+              [
+                "println",
+                "|unknown",
+                "x"
+              ],
+              "0"
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.core/parse-literal",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Number"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'String",
+          [
+            "::",
+            "'Map",
+            "'String",
+            "'Number"
+          ]
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defref",
+      "*reel",
+      [
+        "->",
+        "reel-schema/reel",
+        [
+          "assoc",
+          ":base",
+          "schema/store"
+        ],
+        [
+          "assoc",
+          ":store",
+          "schema/store"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/*reel",
+    "js_ffi": null,
+    "schema": null,
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "apply-updater",
+      [
+        "store",
+        "op",
+        "op-id",
+        "op-time"
+      ],
+      [
+        "if",
+        [
+          "enum?",
+          "op"
+        ],
+        [
+          "updater",
+          [
+            "decode-map-as",
+            "store",
+            [
+              "::",
+              "'Map",
+              "'Tag",
+              "'Dynamic"
+            ]
+          ],
+          "op",
+          [
+            "decode-map-as",
+            "op-id",
+            "'String"
+          ],
+          [
+            "decode-map-as",
+            "op-time",
+            "'Number"
+          ]
+        ],
+        [
+          "raise",
+          "|Expected an Enum operation"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/apply-updater",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Dynamic",
+          "'Dynamic",
+          "'Dynamic",
+          "'Dynamic"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ],
+      [
+        ":return",
+        [
+          "::",
+          "'Map",
+          "'Tag",
+          "'Dynamic"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "dispatch!",
+      [
+        "op"
+      ],
+      [
+        "if",
+        [
+          "enum?",
+          "op"
+        ],
+        [
+          "do",
+          [
+            "when",
+            "config/dev?",
+            [
+              "match",
+              "op",
+              [
+                [
+                  ":states",
+                  "_",
+                  "_"
+                ],
+                "&unit"
+              ],
+              [
+                "_",
+                [
+                  "println",
+                  "|Dispatch:",
+                  "op"
+                ]
+              ]
+            ]
+          ],
+          [
+            "reset!",
+            "*reel",
+            [
+              "reel-updater",
+              "apply-updater",
+              "@*reel",
+              "op"
+            ]
+          ],
+          "&unit"
+        ],
+        [
+          "raise",
+          "|Expected an Enum operation"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/dispatch!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          "'Dynamic"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "main!",
+      [],
+      [
+        "println",
+        "|Running mode:",
+        [
+          "if",
+          "config/dev?",
+          "|dev",
+          "|release"
+        ]
+      ],
+      [
+        "render-app!"
+      ],
+      [
+        "add-watch!",
+        "*reel",
+        ":changes",
+        [
+          "fn",
+          [
+            "r",
+            "p"
+          ],
+          [
+            "render-app!"
+          ]
+        ]
+      ],
+      [
+        "listen-devtools!",
+        "|a",
+        "dispatch!"
+      ],
+      [
+        "let",
+        [
+          [
+            "raw",
+            [
+              "js/localStorage.getItem",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "config/site",
+                  ":storage-key"
+                ],
+                "|"
+              ]
+            ]
+          ]
+        ],
+        [
+          "when",
+          [
+            "js-present?",
+            "raw"
+          ],
+          [
+            "dispatch!",
+            [
+              "::",
+              ":hydrate-storage",
+              [
+                "parse-cirru-edn",
+                [
+                  "decode-map-as",
+                  "raw",
+                  "String"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "js/window.addEventListener",
+        "|beforeunload",
+        "persist-storage!"
+      ],
+      [
+        "js/setInterval",
+        "persist-storage!",
+        "60000"
+      ],
+      [
+        "println",
+        "|App started."
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/main!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "mount-target",
+      [
+        "option:unwrap",
+        [
+          "query-selector",
+          "|.app"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/mount-target",
+    "js_ffi": null,
+    "schema": "'respo.dom/DomElement",
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "persist-storage!",
+      [
+        "&",
+        "_events"
+      ],
+      [
+        "js/localStorage.setItem",
+        [
+          "option:unwrap-or",
+          [
+            "get",
+            "config/site",
+            ":storage-key"
+          ],
+          "|"
+        ],
+        [
+          "format-cirru-edn",
+          [
+            "option:unwrap-or",
+            [
+              "get",
+              "@*reel",
+              ":store"
+            ],
+            "nil"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/persist-storage!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":rest",
+        "'Dynamic"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "refresh-reel-typed",
+      [
+        "reel",
+        "store",
+        "updater-fn"
+      ],
+      [
+        "decode-map-as",
+        [
+          "refresh-reel",
+          "reel",
+          "store",
+          "updater-fn"
+        ],
+        [
+          "::",
+          "'Map",
+          "'Tag",
+          "'Dynamic"
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/refresh-reel-typed",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          [
+            "::",
+            "'Map",
+            "'Tag",
+            "'Dynamic"
+          ],
+          [
+            "::",
+            "'Map",
+            "'Tag",
+            "'Dynamic"
+          ],
+          "'Dynamic"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ],
+      [
+        ":return",
+        [
+          "::",
+          "'Map",
+          "'Tag",
+          "'Dynamic"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "reload!",
+      [],
+      [
+        "if",
+        [
+          "nil?",
+          "build-errors"
+        ],
+        [
+          "do",
+          [
+            "remove-watch!",
+            "*reel",
+            ":changes"
+          ],
+          [
+            "clear-cache!"
+          ],
+          [
+            "add-watch!",
+            "*reel",
+            ":changes",
+            [
+              "fn",
+              [
+                "reel",
+                "prev"
+              ],
+              [
+                "render-app!"
+              ]
+            ]
+          ],
+          [
+            "reset!",
+            "*reel",
+            [
+              "refresh-reel-typed",
+              "@*reel",
+              "schema/store",
+              "updater"
+            ]
+          ],
+          [
+            "hud!",
+            "|ok~",
+            "|Ok"
+          ]
+        ],
+        [
+          "hud!",
+          "|error",
+          "build-errors"
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/reload!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "render-app!",
+      [],
+      [
+        "render!",
+        "mount-target",
+        [
+          "comp-container",
+          "@*reel"
+        ],
+        "dispatch!"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/render-app!",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "snippets",
+      [],
+      [
+        "println",
+        "config/cdn?"
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.main/snippets",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "def",
+      "store",
+      [
+        "{}",
+        [
+          ":states",
+          [
+            "{}",
+            [
+              ":cursor",
+              [
+                "[]"
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.schema/store",
+    "js_ffi": null,
+    "schema": [
+      "::",
+      "'Map",
+      "'Tag",
+      "'Dynamic"
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "run-tests",
+      [],
+      [
+        "test-add"
+      ],
+      [
+        "test-calc"
+      ],
+      [
+        "test-compose"
+      ],
+      [
+        "test-divide"
+      ],
+      [
+        "test-let"
+      ],
+      [
+        "test-minus"
+      ],
+      [
+        "test-times"
+      ],
+      [
+        "test-triangular-funcs"
+      ],
+      [
+        "test-variables"
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/run-tests",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-add",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "0"
+          ],
+          [
+            "calc-x-code",
+            "|+"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|+ 1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|+ 1 2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "6"
+          ],
+          [
+            "calc-x-code",
+            "|+ 1 2 3"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-add",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-calc",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|abs 2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|abs -2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|round 2.2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|round 2.6"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|ceil 2.6"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|floor 2.6"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "expect-number",
+              "|expected-Math-result",
+              [
+                "js/Math.log",
+                "10"
+              ]
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|log 10"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "27"
+          ],
+          [
+            "calc-x-code",
+            "|pow 3 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|root 27 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|mod 13 4"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|% 13 4"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "3"
+          ],
+          [
+            "calc-x-code",
+            "|sqrt 9"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "/",
+              "1",
+              "3"
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|invert 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "-1"
+          ],
+          [
+            "calc-x-code",
+            "|negate 1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|trunc 2.1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "-2"
+          ],
+          [
+            "calc-x-code",
+            "|trunc -2.1"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-calc",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-compose",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "24"
+          ],
+          [
+            "calc-x-code",
+            "|* 3 $ + 5 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "77"
+          ],
+          [
+            "calc-x-code",
+            "|* (+ 3 4) (+ 5 6)"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-compose",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-divide",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|/"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|/ 2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "4"
+          ],
+          [
+            "calc-x-code",
+            "|/ 12 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|/ 12 4 3"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-divide",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-let",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|let ((a 1))\n  + a"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "21"
+          ],
+          [
+            "calc-x-code",
+            "|let\n    a 3\n    b $ + a 4\n  * a b"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-let",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-minus",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "0"
+          ],
+          [
+            "calc-x-code",
+            "|-"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|- 1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "-1"
+          ],
+          [
+            "calc-x-code",
+            "|- 1 2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "-4"
+          ],
+          [
+            "calc-x-code",
+            "|- 1 2 3"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-minus",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-times",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "1"
+          ],
+          [
+            "calc-x-code",
+            "|*"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "2"
+          ],
+          [
+            "calc-x-code",
+            "|* 2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "6"
+          ],
+          [
+            "calc-x-code",
+            "|* 2 3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "24"
+          ],
+          [
+            "calc-x-code",
+            "|* 2 3 4"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-times",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-triangular-funcs",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "expect-number",
+              "|expected-Math-result",
+              [
+                "js/Math.sin",
+                "1"
+              ]
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|sin 1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "expect-number",
+              "|expected-Math-result",
+              [
+                "js/Math.cos",
+                "1"
+              ]
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|cos 1"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "expect-number",
+              "|expected-Math-result",
+              [
+                "js/Math.tan",
+                "1"
+              ]
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|tan 1"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-triangular-funcs",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "test-variables",
+      [],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "4"
+          ],
+          [
+            "calc-x-code",
+            "|* x x",
+            "2"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            "9"
+          ],
+          [
+            "calc-x-code",
+            "|* x x",
+            "3"
+          ]
+        ]
+      ],
+      [
+        "is",
+        [
+          "=",
+          [
+            "[]",
+            [
+              "expect-number",
+              "|expected-Math-result",
+              [
+                "js/Math.pow",
+                "4",
+                "6"
+              ]
+            ]
+          ],
+          [
+            "calc-x-code",
+            "|pow (+ x 1) (* x 2)",
+            "3"
+          ]
+        ]
+      ],
+      "&unit"
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.test/test-variables",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":return",
+        "'Unit"
+      ],
+      [
+        ":args",
+        [
+          "[]"
+        ]
+      ],
+      [
+        ":features",
+        [
+          "#{}",
+          ":js-ffi"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  },
+  {
+    "code": [
+      "defn",
+      "updater",
+      [
+        "store",
+        "op",
+        "op-id",
+        "op-time"
+      ],
+      [
+        "match",
+        "op",
+        [
+          [
+            ":states",
+            "cursor",
+            "s"
+          ],
+          [
+            "assoc",
+            "store",
+            ":states",
+            [
+              "update-state-tree",
+              [
+                "option:unwrap-or",
+                [
+                  "get",
+                  "store",
+                  ":states"
+                ],
+                [
+                  "{}"
+                ]
+              ],
+              [
+                "decode-map-as",
+                "cursor",
+                [
+                  "::",
+                  "'List",
+                  "'Dynamic"
+                ]
+              ],
+              "s"
+            ]
+          ]
+        ],
+        [
+          [
+            ":hydrate-storage",
+            "d"
+          ],
+          [
+            "decode-map-as",
+            "d",
+            [
+              "::",
+              "'Map",
+              "'Tag",
+              "'Dynamic"
+            ]
+          ]
+        ],
+        [
+          "_",
+          [
+            "do",
+            [
+              "eprintln",
+              "|Unknown op:",
+              "op"
+            ],
+            "store"
+          ]
+        ]
+      ]
+    ],
+    "doc": "",
+    "examples": [],
+    "ffi": null,
+    "ffi_edn": null,
+    "id": "calc-dsl.updater/updater",
+    "js_ffi": null,
+    "schema": [
+      "{}",
+      [
+        ":kind",
+        ":fn"
+      ],
+      [
+        ":args",
+        [
+          "[]",
+          [
+            "::",
+            "'Map",
+            "'Tag",
+            "'Dynamic"
+          ],
+          "'Enum",
+          "'String",
+          "'Number"
+        ]
+      ],
+      [
+        ":return",
+        [
+          "::",
+          "'Map",
+          "'Tag",
+          "'Dynamic"
+        ]
+      ]
+    ],
+    "tags": [],
+    "tests": []
+  }
+]
