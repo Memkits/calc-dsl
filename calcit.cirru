@@ -6,11 +6,11 @@
     :cli $ {} (:description |) (:init-fn 'calc-dsl.cli/main!) (:mode :js) (:reload-fn 'calc-dsl.cli/reload!) (:target :node)
       :feature-policy $ {}
       :modules $ []
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |calc-dsl.schema/Op
     :default $ {} (:description |) (:init-fn 'calc-dsl.main/main!) (:mode :js) (:reload-fn 'calc-dsl.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |reel.calcit/ |js-ffi/
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |calc-dsl.schema/Op
   :files $ {}
     'calc-dsl.cli $ %{} 'FileEntry
       :defs $ {}
@@ -94,16 +94,17 @@
                     hint-fn $ {}
                       :args $ [] (:: 'Map 'Tag 'Dynamic)
                         :: 'Fn $ {}
-                          :args $ [] 'Dynamic
+                          :args $ [] 'calc-dsl.schema/Op
                           :return 'Unit
                       :return 'Unit
-                    d! $ :: :states cursor $ assoc state :content
-                      expect-string |input.value $ .unwrap-or (get e :value) nil
+                    d! $ Op :states
+                      decode-map-as cursor $ :: 'List 'Dynamic
+                      assoc state :content $ expect-string |input.value $ .unwrap-or (get e :value) nil
                   :on-keydown $ fn (e d!)
                     hint-fn $ {}
                       :args $ [] (:: 'Map 'Tag 'Dynamic)
                         :: 'Fn $ {}
-                          :args $ [] 'Dynamic
+                          :args $ [] 'calc-dsl.schema/Op
                           :return 'Unit
                       :return 'Unit
                     let
@@ -121,8 +122,9 @@
                             , false $ decode-map-as raw 'Bool
                       when
                         and (= 13 keycode) meta?
-                        d! $ :: :states cursor $ assoc state :result
-                          calc-x-code
+                        d! $ Op :states
+                          decode-map-as cursor $ :: 'List 'Dynamic
+                          assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
                               , 'String
@@ -143,11 +145,12 @@
                         hint-fn $ {}
                           :args $ [] (:: 'Map 'Tag 'Dynamic)
                             :: 'Fn $ {}
-                              :args $ [] 'Dynamic
+                              :args $ [] 'calc-dsl.schema/Op
                               :return 'Unit
                           :return 'Unit
-                        d! $ :: :states cursor $ assoc state :x
-                          .unwrap-or
+                        d! $ Op :states
+                          decode-map-as cursor $ :: 'List 'Dynamic
+                          assoc state :x $ .unwrap-or
                             parse-float $ expect-string |input.value $ .unwrap-or (get e :value) nil
                             , 0
                   =< nil 16
@@ -157,11 +160,12 @@
                         hint-fn $ {}
                           :args $ [] (:: 'Map 'Tag 'Dynamic)
                             :: 'Fn $ {}
-                              :args $ [] 'Dynamic
+                              :args $ [] 'calc-dsl.schema/Op
                               :return 'Unit
                           :return 'Unit
-                        d! $ :: :states cursor $ assoc state :result
-                          calc-x-code
+                        d! $ Op :states
+                          decode-map-as cursor $ :: 'List 'Dynamic
+                          assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
                               , 'String
@@ -193,6 +197,7 @@
             calc-dsl.core :refer $ calc-x-code
             clojure.string :as string
             js-ffi.contract :refer $ expect-string
+            calc-dsl.schema :refer $ Op
     'calc-dsl.config $ %{} 'FileEntry
       :defs $ {}
         'cdn? $ %{} 'CodeEntry (:doc |)
@@ -490,6 +495,13 @@
               raise "|Expected an Enum operation"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Enum
+            :features $ #{} :js-ffi
+        'dispatch-wire! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn dispatch-wire! (op)
+            if (enum? op) (dispatch! op) (raise "|Expected an Enum operation")
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
@@ -497,11 +509,13 @@
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
             add-watch! *reel :changes $ fn (r p) (render-app!)
-            listen-devtools! |a dispatch!
+            listen-devtools! |a dispatch-wire!
             let
                 raw $ js/localStorage.getItem $ .unwrap-or (get config/site :storage-key) |
               when (js-present? raw)
-                dispatch! $ :: :hydrate-storage $ parse-cirru-edn (decode-map-as raw String)
+                dispatch! $ schema/Op :hydrate-storage $ decode-map-as
+                  parse-cirru-edn $ decode-map-as raw String
+                  :: 'Map 'Tag 'Dynamic
             js/window.addEventListener |beforeunload persist-storage!
             js/setInterval persist-storage! 60000
             println "|App started."
@@ -529,7 +543,10 @@
             decode-map-as (refresh-reel reel store updater-fn) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic) 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic)
+              :: 'Fn $ {}
+                :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum 'String 'Number
+                :return $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
@@ -571,8 +588,38 @@
             |bottom-tip :default hud!
             respo.ffi.browser :refer $ query-selector
     'calc-dsl.schema $ %{} 'FileEntry
-      :defs $ {} $ 'store
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'Op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Op
+            :states (:: 'List 'Dynamic) 'Dynamic
+            :hydrate-storage $ :: 'Map 'Tag 'Dynamic
+            :reel/toggle
+            :reel/recall 'Number
+            :reel/run
+            :reel/step
+            :reel/merge
+            :reel/reset
+            :reel/remove 'Number
+          :examples $ []
+          :schema $ :: 'EnumDef
+          :tests $ []
+            %{} 'TestEntry (:name |states-keeps-cursor-and-payload)
+              :code $ quote $ let
+                  cursor $ [] :debugger 1 |leaf
+                  data $ {} (:content |hello) (:x 2)
+                match (Op :states cursor data)
+                  (:states actual-cursor actual-data)
+                    do (assert= cursor actual-cursor) (assert= data actual-data)
+                  _ $ raise |unexpected-operation
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |hydrate-keeps-store-map)
+              :code $ quote $ let
+                  original $ {} $ :states ({})
+                match (Op :hydrate-storage original)
+                  (:hydrate-storage restored) (assert= original restored)
+                  _ $ raise |unexpected-operation
+              :tags $ #{} :unit
+        'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
               :cursor $ []

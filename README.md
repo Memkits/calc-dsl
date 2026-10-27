@@ -88,15 +88,20 @@ npm install -g @memkits/calc-dsl
 calc-dsl
 ```
 
-npm 当前最新发布为 `0.0.3`，不等于已发布的 Git `0.0.9` 或本轮源码；
-上述安装命令安装的是已有 npm 包，不包含本轮升级。源码构建的 CLI 需要先执行
+Git 模块和 npm CLI 独立发布；Git tag 更新不会自动更新上述 npm 包。
+安装前可用 `npm view @memkits/calc-dsl version` 确认 npm 版本。源码构建的 CLI 需要先执行
 `yarn compile-cli`，打包包含 `cli.mjs` 及生成的 `cli-out/`。
 
 ### Workflow
 
-使用者注意：CLI / `@calcit/procs` 必须配对使用正式 **0.30.1**。
-Git 模块依赖使用精确正式 Reel 0.6.42、UI 0.8.1、Respo 0.16.126、
-js-ffi 0.2.6，升级后重新安装模块，不使用 alpha/hash 模块版本。
+本模块提供 JavaScript 数学 DSL 和 Node CLI，浏览器编辑器用于演示与交互回归。
+公共计算合同以 `calc-dsl.core` 的 schema、`calc-dsl.test` 的原始断言为准；
+框架升级不改变 DSL 运算符、求值顺序与结果。
+
+CLI / `@calcit/procs` 配对使用正式 **0.31.0**。
+Git 模块依赖使用已发布的精确版本：Reel 0.7.0-alpha.3、UI 0.9.0-alpha.3、
+Respo 0.17.0-alpha.3、js-ffi 0.2.6。框架在此轮迁移中使用同一套 typed-dispatch
+预发布合同；升级后重新安装模块，用 `caps verify --toolchain` 核对配对。
 仅保留 `calcit.cirru` / `deps.cirru`。公开的算术 API、运算表 Map、默认结果、
 参数求值顺序、编辑器、CLI 及本地存储键不变；非法开放输入现在会明确检查失败。
 解释器通过公开 `apply` 进行真实动态调用并检查数值结果，不假造静态函数签名。
@@ -105,12 +110,16 @@ js-ffi 0.2.6，升级后重新安装模块，不使用 alpha/hash 模块版本�
 DOM 查询复用 Respo 已发布的类型化 API，应用不新增宿主强转。
 前端 COS/CDN 配置不会改变 CLI 或服务器部署路径。
 移除无引用的 npm `feather-icons` / `shortid` / `dayjs`，不替换 Reel 的 ID 生成。
-Git `0.0.9` tag 已存在；本轮迁移尚未发布新的 Git tag 或 npm，已发布版本保持原样。
-源码工作树的版本配对不代表已发布包已迁移。
+Git 模块版本以 `deps.cirru` 及对应 tag 为准；源码工作树的配对不代表 npm 包同步迁移。
 源码改用公开的 `.merge` / `.len` / `.foldl` 和 Option / Result 方法，
 不改变运算表、左右参数顺序、左折叠初始值或空/单参数结果。
-四个编辑器事件回调明确接收 `Fn<Dynamic, Unit>` 派发函数并返回 `Unit`；
+两个 entry 的 `:dispatch-op` 绑定到应用自己的 `calc-dsl.schema/Op`。
+四个编辑器事件回调接收 `Fn<Op, Unit>`，用名义构造器派发，cursor 在使用前检查为 List；
 按键不触发计算时仍不派发。保留原事件 Map 检查和 JS `hud!` 错误提示。
+DevTools 的开放输入经 `dispatch-wire!` 检查 Enum 后进入派发；既有 Reel 回放仍接收历史 Enum，
+Map、ID、时间继续在原适配层检查。热重载的 updater 回调依次接收
+`Map<Tag, Dynamic>`、`Enum`、`String`、`Number`，返回 `Map<Tag, Dynamic>`；
+这不表示 Reel 的开放存储合同已收敛。
 Demo 先恢复存档再注册卸载/每分钟自动保存；恢复失败继续报错，但不安装这两项保存，
 避免初始状态覆盖待恢复原文。存储 key 和有效存档格式不变。
 
@@ -137,7 +146,8 @@ release 触发条件、服务器同步路径不变。它只校验并部署 Demo�
 
 原有 9 组计算测试的 42 个断言保留在 `calc-dsl.test` 中，使用内置 `calcit.test` 断言与现代 `[]` 写法。DSL 的 Math/@calcit/std FFI 需要 JavaScript 目标，因此单独生成 `test-out/` 并由 Node 测试运行，不将它们假称为 native 测试。
 
-纯计算的零参数/单参数/左折叠语义另有 2 项定义内 native 测试：`calcit calcit.cirru test --tag unit --require-match`。
+定义内 native 测试保留纯计算的零参数/单参数/左折叠语义，并验证 Op 的混合 cursor 与存储 Map 不变：
+`calcit calcit.cirru test --tag unit --require-match`。
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow
 
