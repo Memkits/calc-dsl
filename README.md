@@ -6,6 +6,21 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
+### 0.32.0 迁移候选：使用者影响
+
+CLI 与 `@calcit/procs` 配对正式 0.32.0，候选 Git 模块版本 0.0.11。
+升级后重新安装完整依赖、生成浏览器与 CLI 产物；不混用旧 runtime。
+Reel 0.7.0、UI 0.9.0、Respo 0.17.0 当前使用本地候选，JS-FFI 为 0.2.8；
+正式标签整图与远端 CI 尚待验收，版本声明不代表已发 Git tag 或 npm。
+
+官方转换 6 处旧类型写法，54 个定义 schema 保持。DSL 运算符、求值顺序、
+原断言、编辑器、HUD、存档保护和 CLI 行为不变。保留所有原门禁，取消旧 procs
+单包安装豁免，统一一小时发布年龄门禁。Actions 使用核对过同一提交的精确正式 tag。
+本轮双入口完整 strict、全部定义、公开定义、原 4 项 native 和 18 项 Node 测试、
+浏览器/CLI 构建、immutable 安装及 npm pack dry-run 通过；真实页面嵌套计算
+和刷新恢复通过，独立评审无问题。Axis 消费者及正式标签整图仍待验收。
+以下 Workflow 中的 0.31 说明是上一版历史。
+
 ### Usage
 
 Evaluate a Cirru expression with the optional `x` variable. The API returns a list
