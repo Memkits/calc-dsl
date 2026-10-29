@@ -419,7 +419,7 @@
           :code $ quote $ defref *reel
             -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
           :examples $ []
-          :schema $ quote Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'apply-updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn apply-updater (store op op-id op-time)
             if (enum? op)

@@ -109,7 +109,7 @@ jobs:
 
     - name: Retain tested PR preview
       if: github.event_name == 'pull_request'
-      uses: actions/upload-artifact@v7.0.0
+      uses: actions/upload-artifact@v7.0.2
       with:
         name: calc-dsl-preview
         path: dist/
