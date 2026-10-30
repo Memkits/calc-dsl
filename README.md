@@ -10,11 +10,11 @@ Demo http://r.tiye.me/mvc-works/calc-dsl .
 
 CLI 与 `@calcit/procs` 配对正式 0.32.1，候选 Git 模块版本 0.0.11。升级后重新安装完整依赖，生成浏览器与 CLI 产物，不混用旧 runtime；候选版本不表示 Git tag 或 npm 已发布。
 
-配套已发布的 Respo 0.17.1、UI 0.9.0、JS FFI 0.2.9、Reel 0.7.0-alpha.5，传递 Router 0.9.0-alpha.4。Reel/Router 仍含 alpha，不宣称整个依赖图均为正式版。本地静态验收使用此前 Caps 验证的发布源码副本，fresh Caps、最新远端 main 与 CI 仍待核对，不能把副本测试当作完整发布验收。
+配套已发布的 Respo 0.17.1、UI 0.9.0、JS FFI 0.2.9、Reel 0.7.0-alpha.5，传递 Router 0.9.0-alpha.4。Reel/Router 仍含 alpha，不宣称整个依赖图均为正式版。已通过真实 Caps strict 发布图解析及 toolchain 校验，模块不可变源码与本地测试一致。最新 main 未变化且没有重复迁移 PR，远端 CI 仍待验收。
 
 官方 formatter 迁移类型标注；为现有全局 `*reel` 补充真实 `Ref<Map<Tag, Dynamic>>` 合同，解决新图中 deref 泛型关系丢失。没有对已有 Ref 强转、没有改变初始化/更新/持久化逻辑，其他 schema、原断言和运算顺序保持。保留异构 Map，不伪装成同质数据。
 
-本轮浏览器/CLI 双入口完整 strict、241 个定义、50/24 个公开定义、原 4 项 native 和 18 项 Node 测试、三类产物构建、immutable、docs/canonical 及 npm pack dry-run 通过。原 42 条算术断言保留；0.32.1 的真实浏览器和 Axis 消费者尚未复验，不以此前 0.32.0 页面/消费者验收代替。坏存档、HMR 和定时保存仍不作本轮通过声明。
+本轮浏览器/CLI 双入口完整 strict、241 个定义、50/24 个公开定义、原 4 项 native 和 18 项 Node 测试、三类产物构建、immutable、docs/canonical 及 npm pack dry-run 通过。原 42 条算术断言保留；本轮 0.32.1 实际页面验证嵌套算式与 x=2 得到6，刷新后算式、x和结果恢复，控制台无warn/error。Axis消费者尚未复验，不以此前0.32.0消费者结果代替；坏存档、HMR和定时保存未复验。
 
 ### Usage
 
