@@ -20,14 +20,11 @@
               first $ calc-x-code code
               , 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'String
+          :schema $ quote $ Fn String (-> Number)
         'handle-exit $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-exit () (js/process.exit 0) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|\nStarting Calc DSL REPL.\nSupported operations https://github.com/Memkits/calc-dsl#operations.\n"
@@ -40,14 +37,11 @@
               .!on instance |exit handle-exit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |reloading...)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.cli
           :require (|repl :as repl)
@@ -71,9 +65,7 @@
                 comp-debugger $ decode-map-as (>> states :debugger) (:: 'Map 'Tag 'Dynamic)
                 when dev? $ comp-reel (>> states :reel) reel $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
         'comp-debugger $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-debugger (states)
             let
@@ -91,22 +83,16 @@
                   :placeholder |Content
                   :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
                   :on-input $ fn (e d!)
-                    hint-fn $ {}
-                      :args $ [] (:: 'Map 'Tag 'Dynamic)
-                        :: 'Fn $ {}
-                          :args $ [] 'calc-dsl.schema/Op
-                          :return 'Unit
-                      :return 'Unit
+                    hint-fn $ Fn (Map Tag Dynamic)
+                      Fn calc-dsl.schema/Op $ -> Unit
+                      -> Unit
                     d! $ Op :states
                       decode-map-as cursor $ :: 'List 'Dynamic
                       assoc state :content $ expect-string |input.value $ .unwrap-or (get e :value) nil
                   :on-keydown $ fn (e d!)
-                    hint-fn $ {}
-                      :args $ [] (:: 'Map 'Tag 'Dynamic)
-                        :: 'Fn $ {}
-                          :args $ [] 'calc-dsl.schema/Op
-                          :return 'Unit
-                      :return 'Unit
+                    hint-fn $ Fn (Map Tag Dynamic)
+                      Fn calc-dsl.schema/Op $ -> Unit
+                      -> Unit
                     let
                         keycode $ let
                             raw $ .unwrap-or (get e :keycode) nil
@@ -142,12 +128,9 @@
                       :value $ .unwrap-or (get state :x) nil
                       :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
                       :on-input $ fn (e d!)
-                        hint-fn $ {}
-                          :args $ [] (:: 'Map 'Tag 'Dynamic)
-                            :: 'Fn $ {}
-                              :args $ [] 'calc-dsl.schema/Op
-                              :return 'Unit
-                          :return 'Unit
+                        hint-fn $ Fn (Map Tag Dynamic)
+                          Fn calc-dsl.schema/Op $ -> Unit
+                          -> Unit
                         d! $ Op :states
                           decode-map-as cursor $ :: 'List 'Dynamic
                           assoc state :x $ .unwrap-or
@@ -157,12 +140,9 @@
                   div ({})
                     button $ {} (:style ui/button) (:inner-text |Run)
                       :on-click $ fn (e d!)
-                        hint-fn $ {}
-                          :args $ [] (:: 'Map 'Tag 'Dynamic)
-                            :: 'Fn $ {}
-                              :args $ [] 'calc-dsl.schema/Op
-                              :return 'Unit
-                          :return 'Unit
+                        hint-fn $ Fn (Map Tag Dynamic)
+                          Fn calc-dsl.schema/Op $ -> Unit
+                          -> Unit
                         d! $ Op :states
                           decode-map-as cursor $ :: 'List 'Dynamic
                           assoc state :result $ calc-x-code
@@ -182,9 +162,7 @@
                   div ({}) (<> "|Docs: ")
                     a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
@@ -203,7 +181,7 @@
         'cdn? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def cdn? (detect-cdn?)
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'detect-cdn? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn detect-cdn? ()
             cond
@@ -217,19 +195,17 @@
                     , false
               true false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Bool) (:features :js-ffi)
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
             = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css) (:cdn-url |http://cdn.tiye.me/calc-dsl/) (:title "|Calc DSL") (:icon |http://cdn.tiye.me/logo/memkits.png) (:storage-key |calc-dsl)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.config
           :require $ js-ffi.contract :refer $ expect-string
@@ -246,10 +222,9 @@
               recur (rest pairs)
                 assoc scope (decode-map-as k 'String) (calc-expr v scope)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Dynamic) (:: 'Map 'String 'Number)
-            :features $ #{} :js-ffi
-            :return $ :: 'Map 'String 'Number
+          :schema $ quote $ Fn (List Dynamic) (Map String Number)
+            -> $ Map String Number
+            :features :js-ffi
         'calc-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-expr (expr scope)
             if (string? expr) (parse-literal expr scope)
@@ -266,9 +241,7 @@
                       , scope
                   call-expr expr-list scope
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic $ :: 'Map 'String 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
@@ -277,9 +250,8 @@
               map tree $ fn (expr)
                 calc-expr expr $ {} $ |x v
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number)
-            :args $ [] 'String
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn String & Number
+            -> $ List Number
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
@@ -307,35 +279,26 @@
                       raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic $ :: 'Map 'String 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
         'ffi-log $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-log (x)
             decode-map-as (js/Math.log x) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'ffi-tan $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-tan (x)
             decode-map-as (js/Math.tan x) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'ffi-trunc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-trunc (x)
             decode-map-as (js/Math.trunc x) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'math-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-add (& xs) (.foldl xs 0 &+)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn & Number (-> Number)
         'math-dict $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def math-dict
             {}
@@ -367,7 +330,7 @@
               |rand-int $ {} (:param 1) (:f rand-int)
               |trunc $ {} (:param 1) (:f ffi-trunc)
           :examples $ []
-          :schema $ :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Map String (Map Tag Dynamic)
         'math-div $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-div (& xs)
             match (first xs)
@@ -375,9 +338,7 @@
               (:some x)
                 .foldl (rest xs) x &/
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn & Number (-> Number) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |preserves-zero-unary-and-left-fold)
             :code $ quote $ do
               is= 1 $ math-div
@@ -387,46 +348,37 @@
         'math-invert $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-invert (x) (/ 1 x)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> Number)
         'math-max $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-max (x & xs) (.foldl xs x &max)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number & Number (-> Number)
         'math-min $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-min (x & xs) (.foldl xs x &min)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number & Number (-> Number)
         'math-mul $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-mul (& xs) (.foldl xs 1 &*)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn & Number (-> Number)
         'math-negate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-negate (x) (- 0 x)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> Number)
         'math-quot $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-quot (x y)
             ffi-trunc $ / x y
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number Number (-> Number) (:features :js-ffi)
         'math-rem $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-rem (x y) (&number:rem x y)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
+          :schema $ quote $ Fn Number Number (-> Number)
         'math-root $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-root (x y)
             pow x $ / 1 y
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
+          :schema $ quote $ Fn Number Number (-> Number)
         'math-sub $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-sub (& xs)
             match (first xs)
@@ -434,9 +386,7 @@
               (:some x)
                 .foldl (rest xs) x &-
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Number) (:return 'Number)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn & Number (-> Number) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |preserves-zero-unary-and-left-fold)
             :code $ quote $ do
               is= 0 $ math-sub
@@ -457,8 +407,7 @@
                   .unwrap-or (get scope x) 0
                 true $ do (println |unknown x) 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'String $ :: 'Map 'String 'Number
+          :schema $ quote $ Fn String (Map String Number) (-> Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.core
           :require
@@ -470,7 +419,7 @@
           :code $ quote $ defref *reel
             -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'apply-updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn apply-updater (store op op-id op-time)
             if (enum? op)
@@ -479,10 +428,9 @@
                 , op (decode-map-as op-id 'String) (decode-map-as op-time 'Number)
               raise "|Expected an Enum operation"
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Dynamic Dynamic Dynamic Dynamic
+            -> $ Map Tag Dynamic
+            :features :js-ffi
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             if (enum? op)
@@ -494,16 +442,12 @@
                 , &unit
               raise "|Expected an Enum operation"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Enum
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
         'dispatch-wire! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch-wire! (op)
             if (enum? op) (dispatch! op) (raise "|Expected an Enum operation")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -520,14 +464,12 @@
             js/setInterval persist-storage! 60000
             println "|App started."
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ query-selector |.app
           :examples $ []
-          :schema $ :: 'respo.dom/DomElement
+          :schema $ quote respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! (& _events)
             js/localStorage.setItem
@@ -535,20 +477,15 @@
               format-cirru-edn $ .unwrap-or (get @*reel :store) nil
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn & Dynamic (-> Unit) (:features :js-ffi)
         'refresh-reel-typed $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn refresh-reel-typed (reel store updater-fn)
             decode-map-as (refresh-reel reel store updater-fn) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic)
-              :: 'Fn $ {}
-                :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum 'String 'Number
-                :return $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (Map Tag Dynamic)
+            Fn (Map Tag Dynamic) Enum String Number $ -> $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
+            :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -559,19 +496,16 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'snippets $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn snippets () (println config/cdn?)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.main
           :require
@@ -591,8 +525,10 @@
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states (:: 'List 'Dynamic) 'Dynamic
-            :hydrate-storage $ :: 'Map 'Tag 'Dynamic
+            :states
+              quote $ List Dynamic
+              , 'Dynamic
+            :hydrate-storage $ quote $ Map Tag Dynamic
             :reel/toggle
             :reel/recall 'Number
             :reel/run
@@ -601,7 +537,7 @@
             :reel/reset
             :reel/remove 'Number
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
           :tests $ []
             %{} 'TestEntry (:name |states-keeps-cursor-and-payload)
               :code $ quote $ let
@@ -624,7 +560,7 @@
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.schema
     'calc-dsl.test $ %{} 'FileEntry
@@ -632,9 +568,7 @@
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (test-add) (test-calc) (test-compose) (test-divide) (test-let) (test-minus) (test-times) (test-triangular-funcs) (test-variables) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-add ()
             is $ = ([] 0) (calc-x-code |+)
@@ -643,9 +577,7 @@
             is $ = ([] 6) (calc-x-code "|+ 1 2 3")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-calc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-calc ()
             is $ = ([] 2) (calc-x-code "|abs 2")
@@ -670,18 +602,14 @@
             is $ = ([] -2) (calc-x-code "|trunc -2.1")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-compose $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-compose ()
             is $ = ([] 24) (calc-x-code "|* 3 $ + 5 3")
             is $ = ([] 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-divide $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-divide ()
             is $ = ([] 1) (calc-x-code |/)
@@ -690,18 +618,14 @@
             is $ = ([] 1) (calc-x-code "|/ 12 4 3")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-let $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-let ()
             is $ = ([] 1) (calc-x-code "|let ((a 1))\n  + a")
             is $ = ([] 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-minus ()
             is $ = ([] 0) (calc-x-code |-)
@@ -710,9 +634,7 @@
             is $ = ([] -4) (calc-x-code "|- 1 2 3")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-times ()
             is $ = ([] 1) (calc-x-code |*)
@@ -721,9 +643,7 @@
             is $ = ([] 24) (calc-x-code "|* 2 3 4")
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-triangular-funcs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-triangular-funcs ()
             is $ =
@@ -737,9 +657,7 @@
               calc-x-code "|tan 1"
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test-variables $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-variables ()
             is $ = ([] 4) (calc-x-code "|* x x" 2)
@@ -749,9 +667,7 @@
               calc-x-code "|pow (+ x 1) (* x 2)" 3
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.test
           :require
@@ -772,9 +688,8 @@
                 decode-map-as d $ :: 'Map 'Tag 'Dynamic
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum 'String 'Number
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Enum String Number
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
           :require $ respo.cursor :refer $ update-state-tree
