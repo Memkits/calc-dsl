@@ -6,15 +6,26 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
-### 0.32.1 迁移候选：使用者影响
+### 0.34.2 候选：使用者影响
 
-CLI 与 `@calcit/procs` 配对正式 0.32.1，候选 Git 模块版本 0.0.11。升级后重新安装完整依赖，生成浏览器与 CLI 产物，不混用旧 runtime；候选版本不表示 Git tag 或 npm 已发布。
+CLI / `@calcit/procs` 配对正式 **0.34.2**，继续使用 main 尚未发布的 Git 模块候选 **0.0.11**。
+请重新安装完整依赖并生成浏览器、CLI 产物。Git 模块与 npm CLI 独立发布；本候选不表示 npm 已更新。
+依赖为已发布的 Respo **0.19.2**、UI **0.14.1**、Reel **0.9.0**、JS-FFI **0.2.10**，
+传递 Router **0.11.2**，替换旧 alpha 图。UI/Reel 跨 minor 升级可能有样式差异。
 
-配套已发布的 Respo 0.17.1、UI 0.9.0、JS FFI 0.2.9、Reel 0.7.0-alpha.5，传递 Router 0.9.0-alpha.4。Reel/Router 仍含 alpha，不宣称整个依赖图均为正式版。已通过真实 Caps strict 发布图解析及 toolchain 校验，模块不可变源码与本地测试一致。最新 main 未变化且没有重复迁移 PR，远端 CI 仍待验收。
+解析文本后，用递归联合类型 `Expr = String | List Expr` 检查整棵 Cirru 树一次，
+求值回调中的元素不再是推断的 Dynamic。原公开 `calc-expr` / `call-expr` raw 入口保持，
+包括未知操作返回 1、忽略其载荷的行为；不对这些入口提前递归解码，不改变求值顺序或算术公式。
+数学表含不同参数数量的函数和 nil，继续保留真实动态边界及数字结果检查，不伪造统一可变参数签名。
 
-官方 formatter 迁移类型标注；为现有全局 `*reel` 补充真实 `Ref<Map<Tag, Dynamic>>` 合同，解决新图中 deref 泛型关系丢失。没有对已有 Ref 强转、没有改变初始化/更新/持久化逻辑，其他 schema、原断言和运算顺序保持。保留异构 Map，不伪装成同质数据。
+四个 DOM 回调使用真实 RespoEvent；键盘字段用显式宿主空值检查，仍保留缺失 keycode/meta 的 0/false。
+根构造与渲染进入公开 memo frame；三个间隔保持 8/8/16，开发态可选节点显式使用 Option。
+启动调整为先恢复成功，再渲染和注册 watch/保存；恢复失败保留原文，不显示部分初始化界面。
+已有 HUD、有效存档的 key/格式、数字文本非法时回落 0 和全部原算术断言保持。
 
-本轮浏览器/CLI 双入口完整 strict、241 个定义、50/24 个公开定义、原 4 项 native 和 18 项 Node 测试、三类产物构建、immutable、docs/canonical 及 npm pack dry-run 通过。原 42 条算术断言保留；本轮 0.32.1 实际页面验证嵌套算式与 x=2 得到6，刷新后算式、x和结果恢复，控制台无warn/error。Axis消费者尚未复验，不以此前0.32.0消费者结果代替；坏存档、HMR和定时保存未复验。
+本地双入口完整 strict、257 个全定义、4 项原生附带测试、18 项原 Node 回归、三类产物和 npm pack
+预演通过。数学运算与 REPL 的运行验收以 Node/浏览器为准；4 项原生测试不等同于原生数学后端支持。
+真实页面已验收嵌套算式、参数、Run、Meta+Enter、Reel 与刷新恢复。Axis 的现代消费者仍需单独迁移验收。
 
 ### Usage
 
@@ -141,7 +152,7 @@ Git 模块和 npm CLI 独立发布；Git tag 更新不会自动更新上述 npm 
 
 使用 Node.js 24、Yarn 4.18.0、Caps 0.1.1。源码仅为 `calcit.cirru` / `deps.cirru`，不提交 `js-out/`、`dist/` 或退役的 compact/package Snapshot。npm 解析按既定一小时发布等待执行，无包豁免；Actions 使用精确正式 tag。
 
-解释器通过公开 `apply` 做真实动态调用并检查数字结果，不假造函数签名。两个 entry 的 dispatch-op 都绑定应用 Op；编辑器使用实际 Respo 事件 Map，经检查后以单个名义 Enum 更新状态，保留原 `hud!`。DevTools/历史回放保持开放 Enum 检查，ID、时间与 store Map 继续经原适配层检查；Reel 的异构状态不声称已经全部静态化。
+解释器通过公开 `apply` 做真实动态调用并检查数字结果，不假造函数签名。两个 entry 的 dispatch-op 都绑定应用 Op；编辑器使用实际 RespoEvent，经检查后以单个名义 Enum 更新状态，保留原 `hud!`。DevTools/历史回放保持开放 Enum 检查，ID、时间与 store Map 继续经原适配层检查；Reel 的异构状态不声称已经全部静态化。
 
 Demo 保留存储 key、格式与有效内容。先恢复成功再启用 beforeunload/每分钟保存，恢复失败时报错并停止注册保存，避免初始值覆盖原文；不增加默认值或吞掉异常。
 
@@ -165,7 +176,7 @@ CI 保留全部/公开定义、双入口完整 strict（passed 且 diagnostics �
 
 前端仅 dist 上传 COS，使用 action v1.2.0 内置 verify。PR 前缀包含编号/run/attempt，main 生产 CDN 和 `/web-assets/repo/Memkits/calc-dsl` 路径保持；release 工作流仍只验收并部署 Demo，不执行 npm publish。main/release 共享原排队策略，不取消正在上传的任务。
 
-本轮不合并、不部署、不发 Git tag/npm。Git 模块与 npm CLI 独立发布，源码版本不代表 npm 已更新。
+PR 仅沿用隔离的前端预览。Git 模块与 npm CLI 独立发布，源码版本不代表 npm 已更新。
 
 ### License
 

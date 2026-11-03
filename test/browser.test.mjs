@@ -5,12 +5,17 @@ import { comp_container } from '../js-out/calc-dsl.comp.container.mjs';
 import { store } from '../js-out/calc-dsl.schema.mjs';
 import { updater } from '../js-out/calc-dsl.updater.mjs';
 import * as d from '../js-out/respo.util.detect.mjs';
+import { event__GT_edn } from '../js-out/respo.util.format.mjs';
 
 const t = c.init_tags(['store', 'states', 'debugger', 'data', 'content', 'x', 'result',
   'textarea', 'input', 'button', 'value', 'keycode', 'meta?', 'click', 'keydown']);
 const read = (value, key) => c.option_$o_unwrap(c.get(value, key));
-const event = (values, eventType) => c._$n__$M_(c.newTag('type'), eventType,
-  ...Object.entries(values).flatMap(([key, value]) => [c.newTag(key), value]));
+const event = (values, eventType) => event__GT_edn({
+  type: eventType.value,
+  target: { value: values.value },
+  keyCode: values.keycode,
+  metaKey: values['meta?'],
+});
 const render = (value) => comp_container(c._$n__$M_(t.store, value));
 const elements = (component) => {
   const result = [];

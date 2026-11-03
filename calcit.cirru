@@ -62,8 +62,11 @@
                   .unwrap-or (get states :cursor) nil
                   []
               div ({})
-                comp-debugger $ decode-map-as (>> states :debugger) (:: 'Map 'Tag 'Dynamic)
-                when dev? $ comp-reel (>> states :reel) reel $ {}
+                comp-debugger $ decode-map-as (>> states :debugger)
+                  quote $ Map Tag Dynamic
+                if dev?
+                  Option :some $ comp-reel (>> states :reel) reel $ {}
+                  Option :none
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
         'comp-debugger $ %{} 'CodeEntry (:doc |)
@@ -83,33 +86,27 @@
                   :placeholder |Content
                   :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
                   :on-input $ fn (e d!)
-                    hint-fn $ Fn (Map Tag Dynamic)
+                    hint-fn $ Fn respo.schema/RespoEvent
                       Fn calc-dsl.schema/Op $ -> Unit
                       -> Unit
                     d! $ Op :states
-                      decode-map-as cursor $ :: 'List 'Dynamic
-                      assoc state :content $ expect-string |input.value $ .unwrap-or (get e :value) nil
+                      decode-map-as cursor $ quote $ List Dynamic
+                      assoc state :content $ expect-string |input.value $ :value e
                   :on-keydown $ fn (e d!)
-                    hint-fn $ Fn (Map Tag Dynamic)
+                    hint-fn $ Fn respo.schema/RespoEvent
                       Fn calc-dsl.schema/Op $ -> Unit
                       -> Unit
                     let
                         keycode $ let
-                            raw $ .unwrap-or (get e :keycode) nil
-                          if
-                            or (nil? raw)
-                              = (js/typeof raw) |undefined
-                            , 0 $ decode-map-as raw 'Number
+                            raw $ :keycode e
+                          if (js-nullish? raw) 0 $ decode-map-as raw 'Number
                         meta? $ let
-                            raw $ .unwrap-or (get e :meta?) nil
-                          if
-                            or (nil? raw)
-                              = (js/typeof raw) |undefined
-                            , false $ decode-map-as raw 'Bool
+                            raw $ :meta? e
+                          if (js-nullish? raw) false $ decode-map-as raw 'Bool
                       when
                         and (= 13 keycode) meta?
                         d! $ Op :states
-                          decode-map-as cursor $ :: 'List 'Dynamic
+                          decode-map-as cursor $ quote $ List Dynamic
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
@@ -118,33 +115,33 @@
                               .unwrap-or (get state :x) nil
                               , 'Number
                     , &unit
-                =< 8 nil
+                space-x 8
                 div
                   {} $ :style $ .merge ui/expand ui/column
                   div ({})
                     <> $ str |x:
-                    =< 8 nil
+                    space-x 8
                     input $ {} (:type |number)
                       :value $ .unwrap-or (get state :x) nil
                       :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
                       :on-input $ fn (e d!)
-                        hint-fn $ Fn (Map Tag Dynamic)
+                        hint-fn $ Fn respo.schema/RespoEvent
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as cursor $ :: 'List 'Dynamic
+                          decode-map-as cursor $ quote $ List Dynamic
                           assoc state :x $ .unwrap-or
-                            parse-float $ expect-string |input.value $ .unwrap-or (get e :value) nil
+                            parse-float $ expect-string |input.value $ :value e
                             , 0
-                  =< nil 16
+                  space-y 16
                   div ({})
                     button $ {} (:style ui/button) (:inner-text |Run)
                       :on-click $ fn (e d!)
-                        hint-fn $ Fn (Map Tag Dynamic)
+                        hint-fn $ Fn respo.schema/RespoEvent
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as cursor $ :: 'List 'Dynamic
+                          decode-map-as cursor $ quote $ List Dynamic
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
@@ -156,7 +153,7 @@
                     ->
                       decode-map-as
                         .unwrap $ get state :result
-                        :: 'List 'Number
+                        quote $ List Number
                       join-string &newline
                   div $ {} $ :style ui/expand
                   div ({}) (<> "|Docs: ")
@@ -169,13 +166,13 @@
             hsl.core :refer $ hsl
             respo-ui.core :as ui
             respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre
-            respo.comp.space :refer $ =<
             reel.comp.reel :refer $ comp-reel
             calc-dsl.config :refer $ dev?
             calc-dsl.core :refer $ calc-x-code
             clojure.string :as string
             js-ffi.contract :refer $ expect-string
             calc-dsl.schema :refer $ Op
+            respo.comp.space :refer $ space-x space-y
     'calc-dsl.config $ %{} 'FileEntry
       :defs $ {}
         'cdn? $ %{} 'CodeEntry (:doc |)
@@ -211,6 +208,12 @@
           :require $ js-ffi.contract :refer $ expect-string
     'calc-dsl.core $ %{} 'FileEntry
       :defs $ {}
+        'Expr $ %{} 'CodeEntry
+          :doc "|Recursive String/List tree produced by parse-cirru-list. Validated once at the source-text boundary; raw evaluator entry contracts remain unchanged."
+          :code $ quote $ defunion Expr String
+            quote $ List Expr
+          :examples $ []
+          :schema $ quote UnionDef
         'bind-scope $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bind-scope (pairs scope)
             if (empty? pairs) scope $ let[] (k v)
@@ -237,7 +240,7 @@
                     bind-scope
                       decode-map-as
                         .unwrap-or (nth expr-list 1) ([])
-                        :: 'List 'Dynamic
+                        quote $ List Dynamic
                       , scope
                   call-expr expr-list scope
           :examples $ []
@@ -246,7 +249,8 @@
           :code $ quote $ defn calc-x-code (code & xs)
             let
                 v $ .unwrap-or (first xs) 1
-                tree $ parse-cirru-list code
+                tree $ decode-map-as (parse-cirru-list code)
+                  quote $ List Expr
               map tree $ fn (expr)
                 calc-expr expr $ {} $ |x v
           :examples $ []
@@ -255,7 +259,7 @@
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
-                expr-list $ decode-map-as expr $ :: 'List 'Dynamic
+                expr-list $ decode-map-as expr $ quote (List Dynamic)
                 body $ rest expr-list
                 expr-name $ decode-map-as
                   .unwrap $ first expr-list
@@ -424,7 +428,7 @@
           :code $ quote $ defn apply-updater (store op op-id op-time)
             if (enum? op)
               updater
-                decode-map-as store $ :: 'Map 'Tag 'Dynamic
+                decode-map-as store $ quote $ Map Tag Dynamic
                 , op (decode-map-as op-id 'String) (decode-map-as op-time 'Number)
               raise "|Expected an Enum operation"
           :examples $ []
@@ -451,15 +455,15 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
-            render-app!
-            add-watch! *reel :changes $ fn (r p) (render-app!)
-            listen-devtools! |a dispatch-wire!
             let
                 raw $ js/localStorage.getItem $ .unwrap-or (get config/site :storage-key) |
               when (js-present? raw)
                 dispatch! $ schema/Op :hydrate-storage $ decode-map-as
                   parse-cirru-edn $ decode-map-as raw String
-                  :: 'Map 'Tag 'Dynamic
+                  quote $ Map Tag Dynamic
+            render-app!
+            add-watch! *reel :changes $ fn (r p) (render-app!)
+            listen-devtools! |a dispatch-wire!
             js/window.addEventListener |beforeunload persist-storage!
             js/setInterval persist-storage! 60000
             println "|App started."
@@ -480,7 +484,8 @@
           :schema $ quote $ Fn & Dynamic (-> Unit) (:features :js-ffi)
         'refresh-reel-typed $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn refresh-reel-typed (reel store updater-fn)
-            decode-map-as (refresh-reel reel store updater-fn) (:: 'Map 'Tag 'Dynamic)
+            decode-map-as (refresh-reel reel store updater-fn)
+              quote $ Map Tag Dynamic
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (Map Tag Dynamic)
             Fn (Map Tag Dynamic) Enum String Number $ -> $ Map Tag Dynamic
@@ -499,7 +504,7 @@
           :schema $ quote $ Fn (-> Unit)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! mount-target (comp-container @*reel) dispatch!
+            with-memo-frame $ fn () $ render! mount-target (comp-container @*reel) dispatch-wire!
           :examples $ []
           :schema $ quote $ Fn (-> Unit)
         'snippets $ %{} 'CodeEntry (:doc |)
@@ -521,21 +526,22 @@
             |./calcit.build-errors :default build-errors
             |bottom-tip :default hud!
             respo.ffi.browser :refer $ query-selector
+            respo.memo :refer $ with-memo-frame
     'calc-dsl.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :states
               quote $ List Dynamic
-              , 'Dynamic
+              , Dynamic
             :hydrate-storage $ quote $ Map Tag Dynamic
             :reel/toggle
-            :reel/recall 'Number
+            :reel/recall Number
             :reel/run
             :reel/step
             :reel/merge
             :reel/reset
-            :reel/remove 'Number
+            :reel/remove Number
           :examples $ []
           :schema $ quote EnumDef
           :tests $ []
@@ -682,10 +688,10 @@
               (:states cursor s)
                 assoc store :states $ update-state-tree
                   .unwrap-or (get store :states) ({})
-                  decode-map-as cursor $ :: 'List 'Dynamic
+                  decode-map-as cursor $ quote $ List Dynamic
                   , s
               (:hydrate-storage d)
-                decode-map-as d $ :: 'Map 'Tag 'Dynamic
+                decode-map-as d $ quote $ Map Tag Dynamic
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Enum String Number
