@@ -6,10 +6,10 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
-### 0.34.2 候选：使用者影响
+### 0.34.2：使用者影响
 
-CLI / `@calcit/procs` 配对正式 **0.34.2**，继续使用 main 尚未发布的 Git 模块候选 **0.0.11**。
-请重新安装完整依赖并生成浏览器、CLI 产物。Git 模块与 npm CLI 独立发布；本候选不表示 npm 已更新。
+CLI / `@calcit/procs` 配对正式 **0.34.2**，Git 模块版本为 **0.0.11**，发布以正式 Git tag 为准。
+请重新安装完整依赖并生成浏览器、CLI 产物。Git 模块与 npm CLI 独立发布；Git 版本不表示 npm 已更新。
 依赖为已发布的 Respo **0.19.2**、UI **0.14.1**、Reel **0.9.0**、JS-FFI **0.2.10**，
 传递 Router **0.11.2**，替换旧 alpha 图。UI/Reel 跨 minor 升级可能有样式差异。
 
@@ -25,7 +25,8 @@ CLI / `@calcit/procs` 配对正式 **0.34.2**，继续使用 main 尚未发布�
 
 本地双入口完整 strict、257 个全定义、4 项原生附带测试、18 项原 Node 回归、三类产物和 npm pack
 预演通过。数学运算与 REPL 的运行验收以 Node/浏览器为准；4 项原生测试不等同于原生数学后端支持。
-真实页面已验收嵌套算式、参数、Run、Meta+Enter、Reel 与刷新恢复。Axis 的现代消费者仍需单独迁移验收。
+真实页面已验收嵌套算式、参数、Run、Meta+Enter、Reel 与刷新恢复。Axis 本地现代图已通过完整 strict、原测试和实际公式/参数/刷新验收；
+其正式安装仍待本库 tag。图形重绘后静态标签可见性限制仍按 Phlox #71 保留，不声称完整视觉验收通过。
 
 ### Usage
 
