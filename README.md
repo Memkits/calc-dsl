@@ -16,7 +16,7 @@ CLI / `@calcit/procs` 配对正式 **0.35.1**，候选 Git 模块版本为 **0.1
 解析文本后，用递归联合类型 `Expr = String | List Expr` 检查整棵 Cirru 树一次，
 求值回调中的元素不再是推断的 Dynamic。原公开 `calc-expr` / `call-expr` raw 入口保持，
 包括未知操作返回 1、忽略其载荷的行为；不对这些入口提前递归解码，不改变求值顺序或算术公式。
-`math-dict` 的条目改为 `MathOperation`，`:param` 为 `Option Number`，直接读取数学表的调用方需适配。表达式调用、参数数目提示与数字结果检查沿用原规则。
+`math-dict` 的条目改为 `MathOperation` Enum，按一元、二元、可变参数和至少一个参数区分实际函数签名。直接读取旧表字段的调用方需要适配。随机运算单独建模，调用时检查原生函数和值；参数数目提示与数字结果检查沿用原规则。
 
 四个 DOM 回调使用真实 RespoEvent；键盘字段用显式宿主空值检查，仍保留缺失 keycode/meta 的 0/false。
 根构造与渲染进入公开 memo frame；三个间隔保持 8/8/16，开发态可选节点显式使用 Option。

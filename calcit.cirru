@@ -213,11 +213,15 @@
           :examples $ []
           :schema $ quote UnionDef
         'MathOperation $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct MathOperation
-            :param $ Option Number
-            :f Fn
+          :code $ quote $ defenum MathOperation
+            :variadic $ Fn & Number $ -> Number
+            :nonempty $ Fn Number & Number $ -> Number
+            :unary $ Fn Number $ -> Number
+            :binary $ Fn Number Number $ -> Number
+            :rand
+            :rand-int
           :examples $ []
-          :schema $ quote StructDef
+          :schema $ quote EnumDef
         'bind-scope $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bind-scope (pairs scope)
             if (empty? pairs) scope $ let[] (k v)
@@ -271,8 +275,13 @@
               if (.some? method-option)
                 let
                     method $ .unwrap method-option
-                    f $ :f method
-                    param $ :param method
+                    param $ match method
+                      (:unary _) (Option :some 1)
+                      (:binary _) (Option :some 2)
+                      (:variadic _) (Option :none)
+                      (:nonempty _) (Option :none)
+                      (:rand) (Option :some 1)
+                      (:rand-int) (Option :some 1)
                   match param
                     (:some expected)
                       when-not
@@ -281,7 +290,27 @@
                     (:none) &unit
                   let
                       args $ map body $ fn (x) (calc-expr x scope)
-                    decode-map-as (apply f args) 'Number
+                    match method
+                      (:variadic f)
+                        decode-map-as (apply f args) 'Number
+                      (:nonempty f)
+                        decode-map-as (apply f args) 'Number
+                      (:unary f)
+                        decode-map-as (apply f args) 'Number
+                      (:binary f)
+                        decode-map-as (apply f args) 'Number
+                      (:rand)
+                        let
+                            f rand
+                          if (fn? f)
+                            decode-map-as (apply f args) 'Number
+                            raise "|Invalid math function"
+                      (:rand-int)
+                        let
+                            f rand-int
+                          if (fn? f)
+                            decode-map-as (apply f args) 'Number
+                            raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
           :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
@@ -307,33 +336,33 @@
         'math-dict $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def math-dict
             {}
-              |+ $ MathOperation :param (Option :none) :f math-add
-              |- $ MathOperation :param (Option :none) :f math-sub
-              |* $ MathOperation :param (Option :none) :f math-mul
-              |/ $ MathOperation :param (Option :none) :f math-div
-              |max $ MathOperation :param (Option :none) :f math-max
-              |min $ MathOperation :param (Option :none) :f math-min
-              |sin $ MathOperation :param (Option :some 1) :f sin
-              |cos $ MathOperation :param (Option :some 1) :f cos
-              |tan $ MathOperation :param (Option :some 1) :f ffi-tan
-              |abs $ MathOperation :param (Option :some 1) :f abs
-              |round $ MathOperation :param (Option :some 1) :f round
-              |ceil $ MathOperation :param (Option :some 1) :f ceil
-              |floor $ MathOperation :param (Option :some 1) :f floor
-              |log $ MathOperation :param (Option :some 1) :f ffi-log
-              |pow $ MathOperation :param (Option :some 2) :f pow
-              |root $ MathOperation :param (Option :some 2) :f math-root
-              |mod $ MathOperation :param (Option :some 2) :f math-rem
-              |rem $ MathOperation :param (Option :some 2) :f math-rem
-              |% $ MathOperation :param (Option :some 2) :f math-quot
-              |sqrt $ MathOperation :param (Option :some 1) :f sqrt
-              |invert $ MathOperation :param (Option :some 1) :f math-invert
-              |negate $ MathOperation :param (Option :some 1) :f math-negate
-              |inc $ MathOperation :param (Option :some 1) :f inc
-              |dec $ MathOperation :param (Option :some 1) :f dec
-              |rand $ MathOperation :param (Option :some 1) :f rand
-              |rand-int $ MathOperation :param (Option :some 1) :f rand-int
-              |trunc $ MathOperation :param (Option :some 1) :f ffi-trunc
+              |+ $ MathOperation :variadic math-add
+              |- $ MathOperation :variadic math-sub
+              |* $ MathOperation :variadic math-mul
+              |/ $ MathOperation :variadic math-div
+              |max $ MathOperation :nonempty math-max
+              |min $ MathOperation :nonempty math-min
+              |sin $ MathOperation :unary calcit.core/sin
+              |cos $ MathOperation :unary calcit.core/cos
+              |tan $ MathOperation :unary ffi-tan
+              |abs $ MathOperation :unary calcit.core/abs
+              |round $ MathOperation :unary calcit.core/round
+              |ceil $ MathOperation :unary calcit.core/ceil
+              |floor $ MathOperation :unary calcit.core/floor
+              |log $ MathOperation :unary ffi-log
+              |pow $ MathOperation :binary calcit.core/pow
+              |root $ MathOperation :binary math-root
+              |mod $ MathOperation :binary math-rem
+              |rem $ MathOperation :binary math-rem
+              |% $ MathOperation :binary math-quot
+              |sqrt $ MathOperation :unary calcit.core/sqrt
+              |invert $ MathOperation :unary math-invert
+              |negate $ MathOperation :unary math-negate
+              |inc $ MathOperation :unary calcit.core/inc
+              |dec $ MathOperation :unary calcit.core/dec
+              |rand $ MathOperation :rand
+              |rand-int $ MathOperation :rand-int
+              |trunc $ MathOperation :unary ffi-trunc
           :examples $ []
           :schema $ quote $ Map String calc-dsl.core/MathOperation
         'math-div $ %{} 'CodeEntry (:doc |)
