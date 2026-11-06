@@ -62,8 +62,7 @@
                   .unwrap-or (get states :cursor) nil
                   []
               div ({})
-                comp-debugger $ decode-map-as (>> states :debugger)
-                  quote $ Map Tag Dynamic
+                comp-debugger $ decode-map-as (>> states :debugger) (Map Tag Dynamic)
                 if dev?
                   Option :some $ comp-reel (>> states :reel) reel $ {}
                   Option :none
@@ -90,7 +89,7 @@
                       Fn calc-dsl.schema/Op $ -> Unit
                       -> Unit
                     d! $ Op :states
-                      decode-map-as cursor $ quote $ List Dynamic
+                      decode-map-as cursor $ List Dynamic
                       assoc state :content $ expect-string |input.value $ :value e
                   :on-keydown $ fn (e d!)
                     hint-fn $ Fn respo.schema/RespoEvent
@@ -106,7 +105,7 @@
                       when
                         and (= 13 keycode) meta?
                         d! $ Op :states
-                          decode-map-as cursor $ quote $ List Dynamic
+                          decode-map-as cursor $ List Dynamic
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
@@ -129,7 +128,7 @@
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as cursor $ quote $ List Dynamic
+                          decode-map-as cursor $ List Dynamic
                           assoc state :x $ .unwrap-or
                             parse-float $ expect-string |input.value $ :value e
                             , 0
@@ -141,7 +140,7 @@
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as cursor $ quote $ List Dynamic
+                          decode-map-as cursor $ List Dynamic
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap-or (get state :content) nil
@@ -153,7 +152,7 @@
                     ->
                       decode-map-as
                         .unwrap $ get state :result
-                        quote $ List Number
+                        List Number
                       join-string &newline
                   div $ {} $ :style ui/expand
                   div ({}) (<> "|Docs: ")
@@ -210,10 +209,15 @@
       :defs $ {}
         'Expr $ %{} 'CodeEntry
           :doc "|Recursive String/List tree produced by parse-cirru-list. Validated once at the source-text boundary; raw evaluator entry contracts remain unchanged."
-          :code $ quote $ defunion Expr String
-            quote $ List Expr
+          :code $ quote $ defunion Expr String (List Expr)
           :examples $ []
           :schema $ quote UnionDef
+        'MathOperation $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct MathOperation
+            :param $ Option Number
+            :f Fn
+          :examples $ []
+          :schema $ quote StructDef
         'bind-scope $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bind-scope (pairs scope)
             if (empty? pairs) scope $ let[] (k v)
@@ -240,7 +244,7 @@
                     bind-scope
                       decode-map-as
                         .unwrap-or (nth expr-list 1) ([])
-                        quote $ List Dynamic
+                        List Dynamic
                       , scope
                   call-expr expr-list scope
           :examples $ []
@@ -249,8 +253,7 @@
           :code $ quote $ defn calc-x-code (code & xs)
             let
                 v $ .unwrap-or (first xs) 1
-                tree $ decode-map-as (parse-cirru-list code)
-                  quote $ List Expr
+                tree $ decode-map-as (parse-cirru-list code) (List Expr)
               map tree $ fn (expr)
                 calc-expr expr $ {} $ |x v
           :examples $ []
@@ -259,7 +262,7 @@
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
-                expr-list $ decode-map-as expr $ quote (List Dynamic)
+                expr-list $ decode-map-as expr $ List Dynamic
                 body $ rest expr-list
                 expr-name $ decode-map-as
                   .unwrap $ first expr-list
@@ -268,19 +271,17 @@
               if (.some? method-option)
                 let
                     method $ .unwrap method-option
-                    f $ .unwrap $ get method :f
-                    param $ .unwrap-or (get method :param) nil
-                  cond
-                      number? param
+                    f $ :f method
+                    param $ :param method
+                  match param
+                    (:some expected)
                       when-not
-                        = param $ .len body
-                        js/console.warn "|%s takes %d arguments but got %d" expr-name param $ .len body
-                    true nil
+                        = expected $ .len body
+                        js/console.warn "|%s takes %d arguments but got %d" expr-name expected $ .len body
+                    (:none) &unit
                   let
                       args $ map body $ fn (x) (calc-expr x scope)
-                    if (fn? f)
-                      decode-map-as (apply f args) 'Number
-                      raise "|Invalid math function"
+                    decode-map-as (apply f args) 'Number
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
           :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
@@ -306,35 +307,35 @@
         'math-dict $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def math-dict
             {}
-              |+ $ {} (:param nil) (:f math-add)
-              |- $ {} (:param nil) (:f math-sub)
-              |* $ {} (:param nil) (:f math-mul)
-              |/ $ {} (:param nil) (:f math-div)
-              |max $ {} (:param nil) (:f math-max)
-              |min $ {} (:param nil) (:f math-min)
-              |sin $ {} (:param 1) (:f sin)
-              |cos $ {} (:param 1) (:f cos)
-              |tan $ {} (:param 1) (:f ffi-tan)
-              |abs $ {} (:param 1) (:f abs)
-              |round $ {} (:param 1) (:f round)
-              |ceil $ {} (:param 1) (:f ceil)
-              |floor $ {} (:param 1) (:f floor)
-              |log $ {} (:param 1) (:f ffi-log)
-              |pow $ {} (:param 2) (:f pow)
-              |root $ {} (:param 2) (:f math-root)
-              |mod $ {} (:param 2) (:f math-rem)
-              |rem $ {} (:param 2) (:f math-rem)
-              |% $ {} (:param 2) (:f math-quot)
-              |sqrt $ {} (:param 1) (:f sqrt)
-              |invert $ {} (:param 1) (:f math-invert)
-              |negate $ {} (:param 1) (:f math-negate)
-              |inc $ {} (:param 1) (:f inc)
-              |dec $ {} (:param 1) (:f dec)
-              |rand $ {} (:param 1) (:f rand)
-              |rand-int $ {} (:param 1) (:f rand-int)
-              |trunc $ {} (:param 1) (:f ffi-trunc)
+              |+ $ MathOperation :param (Option :none) :f math-add
+              |- $ MathOperation :param (Option :none) :f math-sub
+              |* $ MathOperation :param (Option :none) :f math-mul
+              |/ $ MathOperation :param (Option :none) :f math-div
+              |max $ MathOperation :param (Option :none) :f math-max
+              |min $ MathOperation :param (Option :none) :f math-min
+              |sin $ MathOperation :param (Option :some 1) :f sin
+              |cos $ MathOperation :param (Option :some 1) :f cos
+              |tan $ MathOperation :param (Option :some 1) :f ffi-tan
+              |abs $ MathOperation :param (Option :some 1) :f abs
+              |round $ MathOperation :param (Option :some 1) :f round
+              |ceil $ MathOperation :param (Option :some 1) :f ceil
+              |floor $ MathOperation :param (Option :some 1) :f floor
+              |log $ MathOperation :param (Option :some 1) :f ffi-log
+              |pow $ MathOperation :param (Option :some 2) :f pow
+              |root $ MathOperation :param (Option :some 2) :f math-root
+              |mod $ MathOperation :param (Option :some 2) :f math-rem
+              |rem $ MathOperation :param (Option :some 2) :f math-rem
+              |% $ MathOperation :param (Option :some 2) :f math-quot
+              |sqrt $ MathOperation :param (Option :some 1) :f sqrt
+              |invert $ MathOperation :param (Option :some 1) :f math-invert
+              |negate $ MathOperation :param (Option :some 1) :f math-negate
+              |inc $ MathOperation :param (Option :some 1) :f inc
+              |dec $ MathOperation :param (Option :some 1) :f dec
+              |rand $ MathOperation :param (Option :some 1) :f rand
+              |rand-int $ MathOperation :param (Option :some 1) :f rand-int
+              |trunc $ MathOperation :param (Option :some 1) :f ffi-trunc
           :examples $ []
-          :schema $ quote $ Map String (Map Tag Dynamic)
+          :schema $ quote $ Map String calc-dsl.core/MathOperation
         'math-div $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-div (& xs)
             match (first xs)
@@ -428,7 +429,7 @@
           :code $ quote $ defn apply-updater (store op op-id op-time)
             if (enum? op)
               updater
-                decode-map-as store $ quote $ Map Tag Dynamic
+                decode-map-as store $ Map Tag Dynamic
                 , op (decode-map-as op-id 'String) (decode-map-as op-time 'Number)
               raise "|Expected an Enum operation"
           :examples $ []
@@ -460,7 +461,7 @@
               when (js-present? raw)
                 dispatch! $ schema/Op :hydrate-storage $ decode-map-as
                   parse-cirru-edn $ decode-map-as raw String
-                  quote $ Map Tag Dynamic
+                  Map Tag Dynamic
             render-app!
             add-watch! *reel :changes $ fn (r p) (render-app!)
             listen-devtools! |a dispatch-wire!
@@ -484,8 +485,7 @@
           :schema $ quote $ Fn & Dynamic (-> Unit) (:features :js-ffi)
         'refresh-reel-typed $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn refresh-reel-typed (reel store updater-fn)
-            decode-map-as (refresh-reel reel store updater-fn)
-              quote $ Map Tag Dynamic
+            decode-map-as (refresh-reel reel store updater-fn) (Map Tag Dynamic)
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (Map Tag Dynamic)
             Fn (Map Tag Dynamic) Enum String Number $ -> $ Map Tag Dynamic
@@ -531,10 +531,8 @@
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states
-              quote $ List Dynamic
-              , Dynamic
-            :hydrate-storage $ quote $ Map Tag Dynamic
+            :states (List Dynamic) Dynamic
+            :hydrate-storage $ Map Tag Dynamic
             :reel/toggle
             :reel/recall Number
             :reel/run
@@ -688,10 +686,10 @@
               (:states cursor s)
                 assoc store :states $ update-state-tree
                   .unwrap-or (get store :states) ({})
-                  decode-map-as cursor $ quote $ List Dynamic
+                  decode-map-as cursor $ List Dynamic
                   , s
               (:hydrate-storage d)
-                decode-map-as d $ quote $ Map Tag Dynamic
+                decode-map-as d $ Map Tag Dynamic
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Enum String Number
