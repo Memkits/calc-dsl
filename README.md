@@ -6,7 +6,11 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
-### 0.37.0：使用者影响
+### 0.38.0：使用者影响
+
+Git 模块候选 0.1.1 配对正式 Calcit CLI 与 `@calcit/procs` 0.38.0。请重新安装依赖、生成浏览器和 CLI 产物。编辑器的状态路径使用 Respo 的 `CoordKey` union，公式语法、数值规则、旧存档格式和 HUD 保持。Git 候选与 npm CLI 分别发布。
+
+### 历史 0.37.0
 
 Git 模块候选 0.1.1 使用 Calcit CLI 与 `@calcit/procs` 0.37.0。
 编辑器和 Reel 快捷键使用同一个 `calc-dsl.schema/Op`，文本计算与命令行输入沿用原格式。
