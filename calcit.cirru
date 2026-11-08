@@ -88,7 +88,7 @@
                       Fn calc-dsl.schema/Op $ -> Unit
                       -> Unit
                     d! $ Op :states
-                      decode-map-as (.unwrap cursor) (List Dynamic)
+                      decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
                       assoc state :content $ expect-string |input.value $ :value e
                   :on-keydown $ fn (e d!)
                     hint-fn $ Fn respo.schema/RespoEvent
@@ -104,7 +104,7 @@
                       when
                         and (= 13 keycode) meta?
                         d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List Dynamic)
+                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap $ get state :content
@@ -127,7 +127,7 @@
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List Dynamic)
+                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
                           assoc state :x $ .unwrap-or
                             parse-float $ expect-string |input.value $ :value e
                             , 0
@@ -139,7 +139,7 @@
                           Fn calc-dsl.schema/Op $ -> Unit
                           -> Unit
                         d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List Dynamic)
+                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
                           assoc state :result $ calc-x-code
                             decode-map-as
                               .unwrap $ get state :content
@@ -551,7 +551,7 @@
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states (List Dynamic) Dynamic
+            :states (List respo.schema/CoordKey) Dynamic
             :hydrate-storage $ Map Tag Dynamic
             :reel/toggle
             :reel/recall Number
@@ -706,7 +706,7 @@
               (:states cursor s)
                 assoc store :states $ update-state-tree
                   .unwrap-or (get store :states) ({})
-                  decode-map-as cursor $ List Dynamic
+                  decode-map-as cursor $ List respo.schema/CoordKey
                   , s
               (:hydrate-storage d)
                 decode-map-as d $ Map Tag Dynamic
