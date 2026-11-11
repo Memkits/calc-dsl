@@ -4,10 +4,11 @@ import * as c from '../js-out/calcit.core.mjs';
 import { comp_container } from '../js-out/calc-dsl.comp.container.mjs';
 import { store } from '../js-out/calc-dsl.schema.mjs';
 import { updater } from '../js-out/calc-dsl.updater.mjs';
+import { new_reel } from '../js-out/reel.typed.mjs';
 import * as d from '../js-out/respo.util.detect.mjs';
 import { event__GT_edn } from '../js-out/respo.util.format.mjs';
 
-const t = c.init_tags(['store', 'states', 'debugger', 'data', 'content', 'x', 'result',
+const t = c.init_tags(['states', 'debugger', 'data', 'content', 'x', 'result',
   'textarea', 'input', 'button', 'value', 'keycode', 'meta?', 'click', 'keydown']);
 const read = (value, key) => c.option_$o_unwrap(c.get(value, key));
 const event = (values, eventType) => event__GT_edn({
@@ -16,7 +17,7 @@ const event = (values, eventType) => event__GT_edn({
   keyCode: values.keycode,
   metaKey: values['meta?'],
 });
-const render = (value) => comp_container(c._$n__$M_(t.store, value));
+const render = (value) => comp_container(new_reel(value));
 const elements = (component) => {
   const result = [];
   const visit = (node) => {
