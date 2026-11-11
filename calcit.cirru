@@ -61,8 +61,8 @@
               div ({})
                 comp-debugger $ decode-map-as (>> states :debugger) (Map Tag Dynamic)
                 if dev?
-                  Option :some $ comp-reel (>> states :reel) reel $ {}
-                  Option :none
+                  Some $ comp-reel (>> states :reel) reel $ {}
+                  , None
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
         'comp-debugger $ %{} 'CodeEntry (:doc |)
@@ -232,8 +232,9 @@
               recur (rest pairs)
                 assoc scope (decode-map-as k 'String) (calc-expr v scope)
           :examples $ []
-          :schema $ quote $ Fn (List Dynamic) (Map String Number)
+          :schema $ quote $ Fn (List Binding) (Map String Number)
             -> $ Map String Number
+            :generics Binding
             :features :js-ffi
         'calc-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-expr (expr scope)
@@ -251,7 +252,7 @@
                       , scope
                   call-expr expr-list scope
           :examples $ []
-          :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
+          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
@@ -275,12 +276,12 @@
                 let
                     method $ .unwrap method-option
                     param $ match method
-                      (:unary _) (Option :some 1)
-                      (:binary _) (Option :some 2)
-                      (:variadic _) (Option :none)
-                      (:nonempty _) (Option :none)
-                      (:rand) (Option :some 1)
-                      (:rand-int) (Option :some 1)
+                      (:unary _) (Some 1)
+                      (:binary _) (Some 2)
+                      (:variadic _) None
+                      (:nonempty _) None
+                      (:rand) (Some 1)
+                      (:rand-int) (Some 1)
                   match param
                     (:some expected)
                       when-not
@@ -312,7 +313,7 @@
                             raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
-          :schema $ quote $ Fn Dynamic (Map String Number) (-> Number) (:features :js-ffi)
+          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
         'ffi-log $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-log (x)
             decode-map-as (js/Math.log x) 'Number
@@ -363,7 +364,7 @@
               |rand-int $ MathOperation :rand-int
               |trunc $ MathOperation :unary ffi-trunc
           :examples $ []
-          :schema $ quote $ Map String calc-dsl.core/MathOperation
+          :schema $ quote $ Map String MathOperation
         'math-div $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-div (& xs)
             match (first xs)
@@ -472,7 +473,7 @@
             reset! *reel $ reel-updater apply-updater @*reel op
             , &unit
           :examples $ []
-          :schema $ quote $ Fn calc-dsl.schema/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -508,7 +509,7 @@
             decode-map-as (refresh-reel reel store updater-fn) (Map Tag Dynamic)
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (Map Tag Dynamic)
-            Fn (Map Tag Dynamic) calc-dsl.schema/Op String Number $ -> $ Map Tag Dynamic
+            Fn (Map Tag Dynamic) schema/Op String Number $ -> $ Map Tag Dynamic
             -> $ Map Tag Dynamic
             :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
