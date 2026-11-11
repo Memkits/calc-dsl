@@ -52,19 +52,20 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
-                store $ decode-map-as
-                  .unwrap-or (get reel :store) ({})
-                  , 'Map
+                store $ :store reel
                 states $ decode-map-as
                   .unwrap-or (get store :states) ({})
                   , 'Map
               div ({})
                 comp-debugger $ decode-map-as (>> states :debugger) (Map Tag Dynamic)
                 if dev?
-                  Some $ comp-reel (>> states :reel) reel $ {}
+                  Some $ comp-typed-reel (>> states :reel) reel $ {}
                   , None
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn
+            reel.typed/State Op $ Map Tag Dynamic
+            -> respo.schema/Component
+            :features :js-ffi
         'comp-debugger $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-debugger (states)
             let
@@ -164,7 +165,7 @@
             hsl.core :refer $ hsl
             respo-ui.core :as ui
             respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre
-            reel.comp.reel :refer $ comp-reel
+            reel.comp.reel :refer $ comp-typed-reel
             calc-dsl.config :refer $ dev?
             calc-dsl.core :refer $ calc-x-code
             clojure.string :as string
@@ -450,27 +451,19 @@
     'calc-dsl.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *reel
-            -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
+          :code $ quote $ defref *reel (reel/new-reel schema/store)
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
-        'apply-updater $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn apply-updater (store op op-id op-time)
-            updater
-              decode-map-as store $ Map Tag Dynamic
-              decode-map-as op calc-dsl.schema/Op
-              decode-map-as op-id 'String
-              decode-map-as op-time 'Number
-          :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic Dynamic Dynamic
-            -> $ Map Tag Dynamic
-            :features :js-ffi
+          :schema $ quote $ Ref
+            reel/State schema/Op $ Map Tag Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ match op
               (:states _ _) &unit
               _ $ println |Dispatch: op
-            reset! *reel $ reel-updater apply-updater @*reel op
+            reset! *reel $ match (reel/decode-control op)
+              (:some control) (reel/apply-control updater @*reel control)
+              (:none)
+                reel/record-op updater @*reel op (generate-id!) (now-ms)
             , &unit
           :examples $ []
           :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
@@ -500,24 +493,16 @@
           :code $ quote $ defn persist-storage! (& _events)
             js/localStorage.setItem
               .unwrap-or (get config/site :storage-key) |
-              format-cirru-edn $ .unwrap-or (get @*reel :store) nil
+              format-cirru-edn $ :store @*reel
             , &unit
           :examples $ []
           :schema $ quote $ Fn (& Dynamic) (-> Unit) (:features :js-ffi)
-        'refresh-reel-typed $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn refresh-reel-typed (reel store updater-fn)
-            decode-map-as (refresh-reel reel store updater-fn) (Map Tag Dynamic)
-          :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (Map Tag Dynamic)
-            Fn (Map Tag Dynamic) schema/Op String Number $ -> $ Map Tag Dynamic
-            -> $ Map Tag Dynamic
-            :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
                 add-watch! *reel :changes $ fn (reel prev) (render-app!)
-                reset! *reel $ refresh-reel-typed @*reel schema/store updater
+                reset! *reel $ reel/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
             , &unit
@@ -539,15 +524,14 @@
             calc-dsl.comp.container :refer $ comp-container
             calc-dsl.updater :refer $ updater
             calc-dsl.schema :as schema
-            reel.util :refer $ listen-devtools!
-            reel.core :refer $ reel-updater refresh-reel
-            reel.schema :as reel-schema
             cljs.reader :refer $ read-string
             calc-dsl.config :as config
             |./calcit.build-errors :default build-errors
             |bottom-tip :default hud!
             respo.ffi.browser :refer $ query-selector
             respo.memo :refer $ with-memo-frame
+            reel.typed :as reel
+            js-ffi.shared :refer $ now-ms
     'calc-dsl.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
