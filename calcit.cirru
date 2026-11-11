@@ -49,6 +49,11 @@
             clojure.string :as string
     'calc-dsl.comp.container $ %{} 'FileEntry
       :defs $ {}
+        'DebuggerField $ %{} 'CodeEntry
+          :doc "|Values stored by the calculator's debugger panel."
+          :code $ quote $ defunion DebuggerField String Number (List Number)
+          :examples $ []
+          :schema $ quote UnionDef
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
@@ -57,7 +62,19 @@
                   .unwrap-or (get store :states) ({})
                   , 'Map
               div ({})
-                comp-debugger $ decode-map-as (>> states :debugger) (Map Tag Dynamic)
+                let
+                    branch $ >> states :debugger
+                    cursor $ state-cursor branch
+                    initial $ {} (:content |) (:x 1)
+                      :result $ []
+                    state $ decode-map-as
+                      or
+                        .unwrap-or
+                          respo.cursor/get-state-at branch $ [] :data
+                          , initial
+                        , initial
+                      Map Tag DebuggerField
+                  comp-debugger cursor state
                 if dev?
                   Some $ comp-typed-reel (>> states :reel) reel $ {}
                   , None
@@ -67,104 +84,92 @@
             -> respo.schema/Component
             :features :js-ffi
         'comp-debugger $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-debugger (states)
-            let
-                cursor $ get states :cursor
-                state $ let
-                    initial-state $ {} (:content |) (:x 1)
-                      :result $ []
-                  match (get states :data)
-                    (:some saved) (or saved initial-state)
-                    (:none) initial-state
+          :code $ quote $ defcomp comp-debugger (cursor state)
+            div
+              {} $ :style $ assoc
+                decode-map-as (.merge ui/global ui/fullscreen ui/row) 'Map
+                , :padding 8
+              textarea $ {}
+                :value $ get state :content
+                :placeholder |Content
+                :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
+                :on-input $ fn (e d!)
+                  hint-fn $ Fn respo.schema/RespoEvent
+                    Fn Op $ -> Unit
+                    -> Unit
+                  d! $ Op :states cursor $ assoc state :content
+                    expect-string |input.value $ :value e
+                :on-keydown $ fn (e d!)
+                  hint-fn $ Fn respo.schema/RespoEvent
+                    Fn Op $ -> Unit
+                    -> Unit
+                  let
+                      keycode $ let
+                          raw $ :keycode e
+                        if (js-nullish? raw) 0 $ decode-map-as raw 'Number
+                      meta? $ let
+                          raw $ :meta? e
+                        if (js-nullish? raw) false $ decode-map-as raw 'Bool
+                    when
+                      and (= 13 keycode) meta?
+                      d! $ Op :states cursor $ assoc state :result
+                        calc-x-code
+                          decode-map-as
+                            .unwrap $ get state :content
+                            , 'String
+                          decode-map-as
+                            .unwrap $ get state :x
+                            , 'Number
+                  , &unit
+              space-x 8
               div
-                {} $ :style $ assoc
-                  decode-map-as (.merge ui/global ui/fullscreen ui/row) 'Map
-                  , :padding 8
-                textarea $ {}
-                  :value $ get state :content
-                  :placeholder |Content
-                  :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
-                  :on-input $ fn (e d!)
-                    hint-fn $ Fn respo.schema/RespoEvent
-                      Fn calc-dsl.schema/Op $ -> Unit
-                      -> Unit
-                    d! $ Op :states
-                      decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                      assoc state :content $ expect-string |input.value $ :value e
-                  :on-keydown $ fn (e d!)
-                    hint-fn $ Fn respo.schema/RespoEvent
-                      Fn calc-dsl.schema/Op $ -> Unit
-                      -> Unit
-                    let
-                        keycode $ let
-                            raw $ :keycode e
-                          if (js-nullish? raw) 0 $ decode-map-as raw 'Number
-                        meta? $ let
-                            raw $ :meta? e
-                          if (js-nullish? raw) false $ decode-map-as raw 'Bool
-                      when
-                        and (= 13 keycode) meta?
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :result $ calc-x-code
-                            decode-map-as
-                              .unwrap $ get state :content
-                              , 'String
-                            decode-map-as
-                              .unwrap $ get state :x
-                              , 'Number
-                    , &unit
-                space-x 8
-                div
-                  {} $ :style $ .merge ui/expand ui/column
-                  div ({})
-                    <> $ str |x:
-                    space-x 8
-                    input $ {} (:type |number)
-                      :value $ get state :x
-                      :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
-                      :on-input $ fn (e d!)
-                        hint-fn $ Fn respo.schema/RespoEvent
-                          Fn calc-dsl.schema/Op $ -> Unit
-                          -> Unit
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :x $ .unwrap-or
-                            parse-float $ expect-string |input.value $ :value e
-                            , 0
-                  space-y 16
-                  div ({})
-                    button $ {} (:style ui/button) (:inner-text |Run)
-                      :on-click $ fn (e d!)
-                        hint-fn $ Fn respo.schema/RespoEvent
-                          Fn calc-dsl.schema/Op $ -> Unit
-                          -> Unit
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :result $ calc-x-code
-                            decode-map-as
-                              .unwrap $ get state :content
-                              , 'String
-                            decode-map-as
-                              .unwrap $ get state :x
-                              , 'Number
-                  pre $ {} $ :inner-text
-                    ->
-                      decode-map-as
-                        .unwrap $ get state :result
-                        List Number
-                      join-string &newline
-                  div $ {} $ :style ui/expand
-                  div ({}) (<> "|Docs: ")
-                    a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
+                {} $ :style $ .merge ui/expand ui/column
+                div ({})
+                  <> $ str |x:
+                  space-x 8
+                  input $ {} (:type |number)
+                    :value $ get state :x
+                    :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
+                    :on-input $ fn (e d!)
+                      hint-fn $ Fn respo.schema/RespoEvent
+                        Fn Op $ -> Unit
+                        -> Unit
+                      d! $ Op :states cursor $ assoc state :x
+                        .unwrap-or
+                          parse-float $ expect-string |input.value $ :value e
+                          , 0
+                space-y 16
+                div ({})
+                  button $ {} (:style ui/button) (:inner-text |Run)
+                    :on-click $ fn (e d!)
+                      hint-fn $ Fn respo.schema/RespoEvent
+                        Fn Op $ -> Unit
+                        -> Unit
+                      d! $ Op :states cursor $ assoc state :result
+                        calc-x-code
+                          decode-map-as
+                            .unwrap $ get state :content
+                            , 'String
+                          decode-map-as
+                            .unwrap $ get state :x
+                            , 'Number
+                pre $ {} $ :inner-text
+                  ->
+                    decode-map-as
+                      .unwrap $ get state :result
+                      List Number
+                    join-string &newline
+                div $ {} $ :style ui/expand
+                div ({}) (<> "|Docs: ")
+                  a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag DebuggerField) (-> respo.schema/Component) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
             hsl.core :refer $ hsl
             respo-ui.core :as ui
-            respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre state-cursor
             reel.comp.reel :refer $ comp-typed-reel
             calc-dsl.config :refer $ dev?
             calc-dsl.core :refer $ calc-x-code
