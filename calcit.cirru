@@ -20,7 +20,7 @@
               first $ calc-x-code code
               , 0
           :examples $ []
-          :schema $ quote $ Fn String (-> Number)
+          :schema $ quote $ Fn String (-> Number) (:features :io)
         'handle-exit $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-exit () (js/process.exit 0) &unit
           :examples $ []
@@ -37,11 +37,11 @@
               .!on instance |exit handle-exit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |reloading...)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.cli
           :require (|repl :as repl)
@@ -77,7 +77,7 @@
           :schema $ quote $ Fn
             reel.typed/State Op $ Map Tag Dynamic
             -> respo.schema/Component
-            :features :js-ffi
+            :features :io :js-ffi
         'comp-debugger $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-debugger (cursor state)
             div
@@ -158,7 +158,7 @@
                 div ({}) (<> "|Docs: ")
                   a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
           :examples $ []
-          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag calc-dsl.schema/DebuggerField) (-> respo.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag calc-dsl.schema/DebuggerField) (-> respo.schema/Component) (:features :io :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
@@ -240,7 +240,7 @@
           :examples $ []
           :schema $ quote $ Fn (List Expr) (Map String Number)
             -> $ Map String Number
-            :features :js-ffi
+            :features :io :js-ffi
         'calc-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-expr (expr scope)
             match expr
@@ -262,7 +262,7 @@
                       , scope
                   call-expr expr-list scope
           :examples $ []
-          :schema $ quote $ Fn Expr (Map String Number) (-> Number) (:features :js-ffi)
+          :schema $ quote $ Fn Expr (Map String Number) (-> Number) (:features :io :js-ffi)
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
@@ -273,6 +273,7 @@
           :examples $ []
           :schema $ quote $ Fn String (& Number)
             -> $ List Number
+            :features :io
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
@@ -322,7 +323,7 @@
                             raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
-          :schema $ quote $ Fn (List Expr) (Map String Number) (-> Number) (:features :js-ffi)
+          :schema $ quote $ Fn (List Expr) (Map String Number) (-> Number) (:features :io :js-ffi)
         'ffi-log $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-log (x)
             decode-map-as (js/Math.log x) 'Number
@@ -450,7 +451,7 @@
                   .unwrap-or (get scope x) 0
                 true $ do (println |unknown x) 0
           :examples $ []
-          :schema $ quote $ Fn String (Map String Number) (-> Number)
+          :schema $ quote $ Fn String (Map String Number) (-> Number) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.core
           :require
@@ -474,7 +475,7 @@
                 reel/record-op updater @*reel op (generate-id!) (now-ms)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :io :js-ffi :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -487,24 +488,24 @@
             render-app!
             add-watch! *reel :changes $ fn (r p) (render-app!)
             reel.util/listen-devtools-toggle! |a $ fn () $ dispatch! (schema/Op :reel/toggle)
-            js/window.addEventListener |beforeunload persist-storage!
+            js/window.addEventListener |beforeunload $ fn () $ persist-storage!
             js/setInterval persist-storage! 60000
             println "|App started."
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ query-selector |.app
           :examples $ []
           :schema $ quote respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn persist-storage! (& _events)
+          :code $ quote $ defn persist-storage! ()
             js/localStorage.setItem
               .unwrap-or (get config/site :storage-key) |
               format-cirru-edn $ :store @*reel
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (& Dynamic) (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -515,16 +516,16 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             with-memo-frame $ fn () $ render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'snippets $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn snippets () (println config/cdn?)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.main
           :require
@@ -594,7 +595,7 @@
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (test-add) (test-calc) (test-compose) (test-divide) (test-let) (test-minus) (test-times) (test-triangular-funcs) (test-variables) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-add ()
             is $ = ([] 0) (calc-x-code |+)
@@ -603,7 +604,7 @@
             is $ = ([] 6) (calc-x-code "|+ 1 2 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-calc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-calc ()
             is $ = ([] 2) (calc-x-code "|abs 2")
@@ -628,14 +629,14 @@
             is $ = ([] -2) (calc-x-code "|trunc -2.1")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-compose $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-compose ()
             is $ = ([] 24) (calc-x-code "|* 3 $ + 5 3")
             is $ = ([] 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-divide $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-divide ()
             is $ = ([] 1) (calc-x-code |/)
@@ -644,14 +645,14 @@
             is $ = ([] 1) (calc-x-code "|/ 12 4 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-let $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-let ()
             is $ = ([] 1) (calc-x-code "|let ((a 1))\n  + a")
             is $ = ([] 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-minus ()
             is $ = ([] 0) (calc-x-code |-)
@@ -660,7 +661,7 @@
             is $ = ([] -4) (calc-x-code "|- 1 2 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-times ()
             is $ = ([] 1) (calc-x-code |*)
@@ -669,7 +670,7 @@
             is $ = ([] 24) (calc-x-code "|* 2 3 4")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-triangular-funcs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-triangular-funcs ()
             is $ =
@@ -683,7 +684,7 @@
               calc-x-code "|tan 1"
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-variables $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-variables ()
             is $ = ([] 4) (calc-x-code "|* x x" 2)
@@ -693,7 +694,7 @@
               calc-x-code "|pow (+ x 1) (* x 2)" 3
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.test
           :require
@@ -716,6 +717,7 @@
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) calc-dsl.schema/Op String Number
             -> $ Map Tag Dynamic
+            :features :io
           :tests $ [] $ %{} 'TestEntry (:name |accepts-reel-string-and-debugger-result)
             :code $ quote $ let
                 reel-cursor $ [] :reel :query
