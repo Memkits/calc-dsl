@@ -225,9 +225,10 @@
         'bind-scope $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bind-scope (pairs scope)
             if (empty? pairs) scope $ let[] (k v)
-              decode-map-as
+              match
                 .unwrap-or (first pairs) ([])
-                List Expr
+                (List binding) binding
+                (String _) (raise "|Expected a list binding")
               let
                   name $ match k
                     (String key) key
