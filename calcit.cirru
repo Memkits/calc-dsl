@@ -213,7 +213,7 @@
     'calc-dsl.core $ %{} 'FileEntry
       :defs $ {}
         'Expr $ %{} 'CodeEntry
-          :doc "|Recursive String/List tree produced by parse-cirru-list. Validated once at the source-text boundary; raw evaluator entry contracts remain unchanged."
+          :doc "|Recursive String/List tree used by the parser, evaluator and scope binding."
           :code $ quote $ defunion Expr String (List Expr)
           :examples $ []
           :schema $ quote UnionDef
@@ -232,33 +232,42 @@
             if (empty? pairs) scope $ let[] (k v)
               decode-map-as
                 .unwrap-or (first pairs) ([])
-                , 'List
-              if-not (string? k)
-                js/console.warn "|Uknown key to bind in" $ [] k v
-              recur (rest pairs)
-                assoc scope (decode-map-as k 'String) (calc-expr v scope)
+                List Expr
+              let
+                  name $ match k
+                    (String key) key
+                    (List invalid)
+                      do
+                        js/console.warn "|Unknown key to bind in" $ [] invalid v
+                        raise "|Expected a string binding name"
+                recur (rest pairs)
+                  assoc scope name $ calc-expr v scope
           :examples $ []
-          :schema $ quote $ Fn (List Binding) (Map String Number)
+          :schema $ quote $ Fn (List Expr) (Map String Number)
             -> $ Map String Number
-            :generics Binding
             :features :js-ffi
         'calc-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-expr (expr scope)
-            if (string? expr) (parse-literal expr scope)
-              let
-                  expr-list $ decode-map-as expr 'List
+            match expr
+              (String literal) (parse-literal literal scope)
+              (List expr-list)
                 if
-                  = |let $ .unwrap-or (first expr-list) |
+                  match
+                    .unwrap-or (first expr-list) |
+                    (String name) (= |let name)
+                    (List _) false
                   call-expr
-                    .unwrap-or (last expr-list) ([])
+                    decode-map-as
+                      .unwrap-or (last expr-list) ([])
+                      List Expr
                     bind-scope
                       decode-map-as
                         .unwrap-or (nth expr-list 1) ([])
-                        List Dynamic
+                        List Expr
                       , scope
                   call-expr expr-list scope
           :examples $ []
-          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
+          :schema $ quote $ Fn Expr (Map String Number) (-> Number) (:features :js-ffi)
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
@@ -272,10 +281,9 @@
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
-                expr-list $ decode-map-as expr $ List Dynamic
-                body $ rest expr-list
+                body $ rest expr
                 expr-name $ decode-map-as
-                  .unwrap $ first expr-list
+                  .unwrap $ first expr
                   , 'String
                 method-option $ get math-dict expr-name
               if (.some? method-option)
@@ -319,7 +327,7 @@
                             raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
-          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
+          :schema $ quote $ Fn (List Expr) (Map String Number) (-> Number) (:features :js-ffi)
         'ffi-log $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-log (x)
             decode-map-as (js/Math.log x) 'Number
