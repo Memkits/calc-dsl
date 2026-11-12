@@ -49,11 +49,6 @@
             clojure.string :as string
     'calc-dsl.comp.container $ %{} 'FileEntry
       :defs $ {}
-        'DebuggerField $ %{} 'CodeEntry
-          :doc "|Values stored by the calculator's debugger panel."
-          :code $ quote $ defunion DebuggerField String Number (List Number)
-          :examples $ []
-          :schema $ quote UnionDef
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
@@ -73,7 +68,7 @@
                           respo.cursor/get-state-at branch $ [] :data
                           , initial
                         , initial
-                      Map Tag DebuggerField
+                      Map Tag calc-dsl.schema/DebuggerField
                   comp-debugger cursor state
                 if dev?
                   Some $ comp-typed-reel (>> states :reel) reel $ {}
@@ -163,7 +158,7 @@
                 div ({}) (<> "|Docs: ")
                   a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
           :examples $ []
-          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag DebuggerField) (-> respo.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag calc-dsl.schema/DebuggerField) (-> respo.schema/Component) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
@@ -547,9 +542,14 @@
             js-ffi.shared :refer $ now-ms
     'calc-dsl.schema $ %{} 'FileEntry
       :defs $ {}
+        'DebuggerField $ %{} 'CodeEntry
+          :doc "|Values stored by the calculator's debugger panel."
+          :code $ quote $ defunion DebuggerField String Number (List Number)
+          :examples $ []
+          :schema $ quote UnionDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states (List respo.schema/CoordKey) Dynamic
+            :states (List respo.schema/CoordKey) calc-dsl.schema/StatePayload
             :hydrate-storage $ Map Tag Dynamic
             :reel/toggle
             :reel/recall Number
@@ -577,6 +577,10 @@
                   (:hydrate-storage restored) (assert= original restored)
                   _ $ raise |unexpected-operation
               :tags $ #{} :unit
+        'StatePayload $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion StatePayload String (Map Tag calc-dsl.schema/DebuggerField)
+          :examples $ []
+          :schema $ quote UnionDef
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
@@ -705,13 +709,31 @@
                 assoc store :states $ update-state-tree
                   .unwrap-or (get store :states) ({})
                   decode-map-as cursor $ List respo.schema/CoordKey
-                  , s
+                  decode-map-as s calc-dsl.schema/StatePayload
               (:hydrate-storage d)
                 decode-map-as d $ Map Tag Dynamic
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) calc-dsl.schema/Op String Number
             -> $ Map Tag Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |accepts-reel-string-and-debugger-result)
+            :code $ quote $ let
+                reel-cursor $ [] :reel :query
+                debug-cursor $ [] :debugger
+                debugger $ {} (:content "|+ 1 2") (:x 1)
+                  :result $ [] 3
+                next $ -> calc-dsl.schema/store
+                  updater (:: :states reel-cursor |filter) |id 0
+                  updater (calc-dsl.schema/Op :states debug-cursor debugger) |id 1
+              assert= (Some |filter)
+                respo.cursor/get-state-at
+                  .unwrap $ get next :states
+                  conj reel-cursor :data
+              assert= (Some debugger)
+                respo.cursor/get-state-at
+                  .unwrap $ get next :states
+                  conj debug-cursor :data
+            :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
           :require $ respo.cursor :refer $ update-state-tree
