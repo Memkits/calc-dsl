@@ -20,7 +20,7 @@
               first $ calc-x-code code
               , 0
           :examples $ []
-          :schema $ quote $ Fn String (-> Number)
+          :schema $ quote $ Fn String (-> Number) (:features :io)
         'handle-exit $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-exit () (js/process.exit 0) &unit
           :examples $ []
@@ -37,11 +37,11 @@
               .!on instance |exit handle-exit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |reloading...)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.cli
           :require (|repl :as repl)
@@ -57,7 +57,19 @@
                   .unwrap-or (get store :states) ({})
                   , 'Map
               div ({})
-                comp-debugger $ decode-map-as (>> states :debugger) (Map Tag Dynamic)
+                let
+                    branch $ >> states :debugger
+                    cursor $ state-cursor branch
+                    initial $ {} (:content |) (:x 1)
+                      :result $ []
+                    state $ decode-map-as
+                      or
+                        .unwrap-or
+                          respo.cursor/get-state-at branch $ [] :data
+                          , initial
+                        , initial
+                      Map Tag calc-dsl.schema/DebuggerField
+                  comp-debugger cursor state
                 if dev?
                   Some $ comp-typed-reel (>> states :reel) reel $ {}
                   , None
@@ -65,106 +77,94 @@
           :schema $ quote $ Fn
             reel.typed/State Op $ Map Tag Dynamic
             -> respo.schema/Component
-            :features :js-ffi
+            :features :io :js-ffi
         'comp-debugger $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-debugger (states)
-            let
-                cursor $ get states :cursor
-                state $ let
-                    initial-state $ {} (:content |) (:x 1)
-                      :result $ []
-                  match (get states :data)
-                    (:some saved) (or saved initial-state)
-                    (:none) initial-state
+          :code $ quote $ defcomp comp-debugger (cursor state)
+            div
+              {} $ :style $ assoc
+                decode-map-as (.merge ui/global ui/fullscreen ui/row) 'Map
+                , :padding 8
+              textarea $ {}
+                :value $ get state :content
+                :placeholder |Content
+                :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
+                :on-input $ fn (e d!)
+                  hint-fn $ Fn respo.schema/RespoEvent
+                    Fn Op $ -> Unit
+                    -> Unit
+                  d! $ Op :states cursor $ assoc state :content
+                    expect-string |input.value $ :value e
+                :on-keydown $ fn (e d!)
+                  hint-fn $ Fn respo.schema/RespoEvent
+                    Fn Op $ -> Unit
+                    -> Unit
+                  let
+                      keycode $ let
+                          raw $ :keycode e
+                        if (js-nullish? raw) 0 $ decode-map-as raw 'Number
+                      meta? $ let
+                          raw $ :meta? e
+                        if (js-nullish? raw) false $ decode-map-as raw 'Bool
+                    when
+                      and (= 13 keycode) meta?
+                      d! $ Op :states cursor $ assoc state :result
+                        calc-x-code
+                          decode-map-as
+                            .unwrap $ get state :content
+                            , 'String
+                          decode-map-as
+                            .unwrap $ get state :x
+                            , 'Number
+                  , &unit
+              space-x 8
               div
-                {} $ :style $ assoc
-                  decode-map-as (.merge ui/global ui/fullscreen ui/row) 'Map
-                  , :padding 8
-                textarea $ {}
-                  :value $ get state :content
-                  :placeholder |Content
-                  :style $ .merge ui/textarea $ {} (:width 300) (:font-family ui/font-code)
-                  :on-input $ fn (e d!)
-                    hint-fn $ Fn respo.schema/RespoEvent
-                      Fn calc-dsl.schema/Op $ -> Unit
-                      -> Unit
-                    d! $ Op :states
-                      decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                      assoc state :content $ expect-string |input.value $ :value e
-                  :on-keydown $ fn (e d!)
-                    hint-fn $ Fn respo.schema/RespoEvent
-                      Fn calc-dsl.schema/Op $ -> Unit
-                      -> Unit
-                    let
-                        keycode $ let
-                            raw $ :keycode e
-                          if (js-nullish? raw) 0 $ decode-map-as raw 'Number
-                        meta? $ let
-                            raw $ :meta? e
-                          if (js-nullish? raw) false $ decode-map-as raw 'Bool
-                      when
-                        and (= 13 keycode) meta?
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :result $ calc-x-code
-                            decode-map-as
-                              .unwrap $ get state :content
-                              , 'String
-                            decode-map-as
-                              .unwrap $ get state :x
-                              , 'Number
-                    , &unit
-                space-x 8
-                div
-                  {} $ :style $ .merge ui/expand ui/column
-                  div ({})
-                    <> $ str |x:
-                    space-x 8
-                    input $ {} (:type |number)
-                      :value $ get state :x
-                      :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
-                      :on-input $ fn (e d!)
-                        hint-fn $ Fn respo.schema/RespoEvent
-                          Fn calc-dsl.schema/Op $ -> Unit
-                          -> Unit
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :x $ .unwrap-or
-                            parse-float $ expect-string |input.value $ :value e
-                            , 0
-                  space-y 16
-                  div ({})
-                    button $ {} (:style ui/button) (:inner-text |Run)
-                      :on-click $ fn (e d!)
-                        hint-fn $ Fn respo.schema/RespoEvent
-                          Fn calc-dsl.schema/Op $ -> Unit
-                          -> Unit
-                        d! $ Op :states
-                          decode-map-as (.unwrap cursor) (List respo.schema/CoordKey)
-                          assoc state :result $ calc-x-code
-                            decode-map-as
-                              .unwrap $ get state :content
-                              , 'String
-                            decode-map-as
-                              .unwrap $ get state :x
-                              , 'Number
-                  pre $ {} $ :inner-text
-                    ->
-                      decode-map-as
-                        .unwrap $ get state :result
-                        List Number
-                      join-string &newline
-                  div $ {} $ :style ui/expand
-                  div ({}) (<> "|Docs: ")
-                    a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
+                {} $ :style $ .merge ui/expand ui/column
+                div ({})
+                  <> $ str |x:
+                  space-x 8
+                  input $ {} (:type |number)
+                    :value $ get state :x
+                    :style $ .merge ui/input $ {} (:width 80) (:font-family ui/font-code) (:min-width 60)
+                    :on-input $ fn (e d!)
+                      hint-fn $ Fn respo.schema/RespoEvent
+                        Fn Op $ -> Unit
+                        -> Unit
+                      d! $ Op :states cursor $ assoc state :x
+                        .unwrap-or
+                          parse-float $ expect-string |input.value $ :value e
+                          , 0
+                space-y 16
+                div ({})
+                  button $ {} (:style ui/button) (:inner-text |Run)
+                    :on-click $ fn (e d!)
+                      hint-fn $ Fn respo.schema/RespoEvent
+                        Fn Op $ -> Unit
+                        -> Unit
+                      d! $ Op :states cursor $ assoc state :result
+                        calc-x-code
+                          decode-map-as
+                            .unwrap $ get state :content
+                            , 'String
+                          decode-map-as
+                            .unwrap $ get state :x
+                            , 'Number
+                pre $ {} $ :inner-text
+                  ->
+                    decode-map-as
+                      .unwrap $ get state :result
+                      List Number
+                    join-string &newline
+                div $ {} $ :style ui/expand
+                div ({}) (<> "|Docs: ")
+                  a $ {} (:href |http://github.com/Memkits/calc-dsl/) (:target |_blank) (:inner-text |http://github.com/Memkits/calc-dsl/)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> respo.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn (List respo.schema/CoordKey) (Map Tag calc-dsl.schema/DebuggerField) (-> respo.schema/Component) (:features :io :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.comp.container
           :require
             hsl.core :refer $ hsl
             respo-ui.core :as ui
-            respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input a pre state-cursor
             reel.comp.reel :refer $ comp-typed-reel
             calc-dsl.config :refer $ dev?
             calc-dsl.core :refer $ calc-x-code
@@ -208,7 +208,7 @@
     'calc-dsl.core $ %{} 'FileEntry
       :defs $ {}
         'Expr $ %{} 'CodeEntry
-          :doc "|Recursive String/List tree produced by parse-cirru-list. Validated once at the source-text boundary; raw evaluator entry contracts remain unchanged."
+          :doc "|Recursive String/List tree used by the parser, evaluator and scope binding."
           :code $ quote $ defunion Expr String (List Expr)
           :examples $ []
           :schema $ quote UnionDef
@@ -227,33 +227,42 @@
             if (empty? pairs) scope $ let[] (k v)
               decode-map-as
                 .unwrap-or (first pairs) ([])
-                , 'List
-              if-not (string? k)
-                js/console.warn "|Uknown key to bind in" $ [] k v
-              recur (rest pairs)
-                assoc scope (decode-map-as k 'String) (calc-expr v scope)
+                List Expr
+              let
+                  name $ match k
+                    (String key) key
+                    (List invalid)
+                      do
+                        js/console.warn "|Unknown key to bind in" $ [] invalid v
+                        raise "|Expected a string binding name"
+                recur (rest pairs)
+                  assoc scope name $ calc-expr v scope
           :examples $ []
-          :schema $ quote $ Fn (List Binding) (Map String Number)
+          :schema $ quote $ Fn (List Expr) (Map String Number)
             -> $ Map String Number
-            :generics Binding
-            :features :js-ffi
+            :features :io :js-ffi
         'calc-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-expr (expr scope)
-            if (string? expr) (parse-literal expr scope)
-              let
-                  expr-list $ decode-map-as expr 'List
+            match expr
+              (String literal) (parse-literal literal scope)
+              (List expr-list)
                 if
-                  = |let $ .unwrap-or (first expr-list) |
+                  match
+                    .unwrap-or (first expr-list) |
+                    (String name) (= |let name)
+                    (List _) false
                   call-expr
-                    .unwrap-or (last expr-list) ([])
+                    decode-map-as
+                      .unwrap-or (last expr-list) ([])
+                      List Expr
                     bind-scope
                       decode-map-as
                         .unwrap-or (nth expr-list 1) ([])
-                        List Dynamic
+                        List Expr
                       , scope
                   call-expr expr-list scope
           :examples $ []
-          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
+          :schema $ quote $ Fn Expr (Map String Number) (-> Number) (:features :io :js-ffi)
         'calc-x-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-x-code (code & xs)
             let
@@ -264,13 +273,13 @@
           :examples $ []
           :schema $ quote $ Fn String (& Number)
             -> $ List Number
+            :features :io
         'call-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn call-expr (expr scope)
             let
-                expr-list $ decode-map-as expr $ List Dynamic
-                body $ rest expr-list
+                body $ rest expr
                 expr-name $ decode-map-as
-                  .unwrap $ first expr-list
+                  .unwrap $ first expr
                   , 'String
                 method-option $ get math-dict expr-name
               if (.some? method-option)
@@ -314,7 +323,7 @@
                             raise "|Invalid math function"
                 do (println "|Unknown expression:" expr) 1
           :examples $ []
-          :schema $ quote $ Fn Input (Map String Number) (-> Number) (:generics Input) (:features :js-ffi)
+          :schema $ quote $ Fn (List Expr) (Map String Number) (-> Number) (:features :io :js-ffi)
         'ffi-log $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ffi-log (x)
             decode-map-as (js/Math.log x) 'Number
@@ -442,7 +451,7 @@
                   .unwrap-or (get scope x) 0
                 true $ do (println |unknown x) 0
           :examples $ []
-          :schema $ quote $ Fn String (Map String Number) (-> Number)
+          :schema $ quote $ Fn String (Map String Number) (-> Number) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.core
           :require
@@ -466,7 +475,7 @@
                 reel/record-op updater @*reel op (generate-id!) (now-ms)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :io :js-ffi :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -479,24 +488,24 @@
             render-app!
             add-watch! *reel :changes $ fn (r p) (render-app!)
             reel.util/listen-devtools-toggle! |a $ fn () $ dispatch! (schema/Op :reel/toggle)
-            js/window.addEventListener |beforeunload persist-storage!
+            js/window.addEventListener |beforeunload $ fn () $ persist-storage!
             js/setInterval persist-storage! 60000
             println "|App started."
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ query-selector |.app
           :examples $ []
           :schema $ quote respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn persist-storage! (& _events)
+          :code $ quote $ defn persist-storage! ()
             js/localStorage.setItem
               .unwrap-or (get config/site :storage-key) |
               format-cirru-edn $ :store @*reel
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (& Dynamic) (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -507,16 +516,16 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             with-memo-frame $ fn () $ render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'snippets $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn snippets () (println config/cdn?)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.main
           :require
@@ -534,9 +543,14 @@
             js-ffi.shared :refer $ now-ms
     'calc-dsl.schema $ %{} 'FileEntry
       :defs $ {}
+        'DebuggerField $ %{} 'CodeEntry
+          :doc "|Values stored by the calculator's debugger panel."
+          :code $ quote $ defunion DebuggerField String Number (List Number)
+          :examples $ []
+          :schema $ quote UnionDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states (List respo.schema/CoordKey) Dynamic
+            :states (List respo.schema/CoordKey) calc-dsl.schema/StatePayload
             :hydrate-storage $ Map Tag Dynamic
             :reel/toggle
             :reel/recall Number
@@ -564,6 +578,10 @@
                   (:hydrate-storage restored) (assert= original restored)
                   _ $ raise |unexpected-operation
               :tags $ #{} :unit
+        'StatePayload $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion StatePayload String (Map Tag calc-dsl.schema/DebuggerField)
+          :examples $ []
+          :schema $ quote UnionDef
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
@@ -577,7 +595,7 @@
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (test-add) (test-calc) (test-compose) (test-divide) (test-let) (test-minus) (test-times) (test-triangular-funcs) (test-variables) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-add ()
             is $ = ([] 0) (calc-x-code |+)
@@ -586,7 +604,7 @@
             is $ = ([] 6) (calc-x-code "|+ 1 2 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-calc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-calc ()
             is $ = ([] 2) (calc-x-code "|abs 2")
@@ -611,14 +629,14 @@
             is $ = ([] -2) (calc-x-code "|trunc -2.1")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-compose $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-compose ()
             is $ = ([] 24) (calc-x-code "|* 3 $ + 5 3")
             is $ = ([] 77) (calc-x-code "|* (+ 3 4) (+ 5 6)")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-divide $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-divide ()
             is $ = ([] 1) (calc-x-code |/)
@@ -627,14 +645,14 @@
             is $ = ([] 1) (calc-x-code "|/ 12 4 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-let $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-let ()
             is $ = ([] 1) (calc-x-code "|let ((a 1))\n  + a")
             is $ = ([] 21) (calc-x-code "|let\n    a 3\n    b $ + a 4\n  * a b")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-minus ()
             is $ = ([] 0) (calc-x-code |-)
@@ -643,7 +661,7 @@
             is $ = ([] -4) (calc-x-code "|- 1 2 3")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-times ()
             is $ = ([] 1) (calc-x-code |*)
@@ -652,7 +670,7 @@
             is $ = ([] 24) (calc-x-code "|* 2 3 4")
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-triangular-funcs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-triangular-funcs ()
             is $ =
@@ -666,7 +684,7 @@
               calc-x-code "|tan 1"
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'test-variables $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-variables ()
             is $ = ([] 4) (calc-x-code "|* x x" 2)
@@ -676,7 +694,7 @@
               calc-x-code "|pow (+ x 1) (* x 2)" 3
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.test
           :require
@@ -692,13 +710,32 @@
                 assoc store :states $ update-state-tree
                   .unwrap-or (get store :states) ({})
                   decode-map-as cursor $ List respo.schema/CoordKey
-                  , s
+                  decode-map-as s calc-dsl.schema/StatePayload
               (:hydrate-storage d)
                 decode-map-as d $ Map Tag Dynamic
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) calc-dsl.schema/Op String Number
             -> $ Map Tag Dynamic
+            :features :io
+          :tests $ [] $ %{} 'TestEntry (:name |accepts-reel-string-and-debugger-result)
+            :code $ quote $ let
+                reel-cursor $ [] :reel :query
+                debug-cursor $ [] :debugger
+                debugger $ {} (:content "|+ 1 2") (:x 1)
+                  :result $ [] 3
+                next $ -> calc-dsl.schema/store
+                  updater (:: :states reel-cursor |filter) |id 0
+                  updater (calc-dsl.schema/Op :states debug-cursor debugger) |id 1
+              assert= (Some |filter)
+                respo.cursor/get-state-at
+                  .unwrap $ get next :states
+                  conj reel-cursor :data
+              assert= (Some debugger)
+                respo.cursor/get-state-at
+                  .unwrap $ get next :states
+                  conj debug-cursor :data
+            :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
           :require $ respo.cursor :refer $ update-state-tree

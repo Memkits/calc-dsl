@@ -6,9 +6,9 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
-### 0.41.0：使用者影响
+### 0.42.0：使用者影响
 
-候选 Git 模块 0.1.2 要求正式 Calcit CLI 与 `@calcit/procs` 0.41.0。请重新安装依赖，生成浏览器和 CLI 产物。公式语法、数值规则和旧存档继续沿用原合同。公开求值器继续支持旧的开放输入，包括未知操作返回 1。
+候选 Git 模块 0.1.2 要求正式 Calcit CLI 与 `@calcit/procs` 0.42.0。请重新安装依赖，生成浏览器和 CLI 产物。公式语法、数值规则和旧存档继续沿用原合同。公开求值器继续支持旧的开放输入，包括未知操作返回 1。 调试面板的状态值由 `DebuggerField` union 检查，支持公式文本、数字和数字结果列表。
 
 ### 0.38.0：使用者影响
 
@@ -27,9 +27,10 @@ CLI / `@calcit/procs` 配对正式 **0.35.1**，候选 Git 模块版本为 **0.1
 依赖为已发布的 Respo **0.19.4**、UI **0.15.1**、Reel **0.9.2**、JS-FFI **0.2.13**，
 传递 Router **0.12.1**，替换旧 alpha 图。UI/Reel 跨 minor 升级可能有样式差异。
 
-解析文本后，用递归联合类型 `Expr = String | List Expr` 检查整棵 Cirru 树一次，
-求值回调中的元素不再是推断的 Dynamic。原公开 `calc-expr` / `call-expr` raw 入口保持，
-包括未知操作返回 1、忽略其载荷的行为；不对这些入口提前递归解码，不改变求值顺序或算术公式。
+解析文本后，用递归联合类型 `Expr = String | List Expr` 检查整棵 Cirru 树。Calcit 0.42.0
+迁移将该类型贯穿到递归求值和 `let` 绑定。直接调用 `calc-expr` 或 `call-expr` 时，
+请传入 `Expr` 或 `List Expr`，从外部读取的树可先用 `decode-map-as` 校验。
+合法表达式的求值顺序、算术公式，以及未知操作返回 1 的行为沿用原实现。
 `math-dict` 的条目改为 `MathOperation` Enum，按一元、二元、可变参数和至少一个参数区分实际函数签名。直接读取旧表字段的调用方需要适配。随机运算单独建模，调用时检查原生函数和值；参数数目提示与数字结果检查沿用原规则。
 
 四个 DOM 回调使用真实 RespoEvent；键盘字段用显式宿主空值检查，仍保留缺失 keycode/meta 的 0/false。
