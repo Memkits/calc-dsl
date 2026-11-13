@@ -53,9 +53,7 @@
           :code $ quote $ defcomp comp-container (reel)
             let
                 store $ :store reel
-                states $ decode-map-as
-                  .unwrap-or (get store :states) ({})
-                  , 'Map
+                states $ calc-dsl.schema/read-states store
               div ({})
                 let
                     branch $ >> states :debugger
@@ -583,6 +581,15 @@
           :code $ quote $ defunion StatePayload String (Map Tag calc-dsl.schema/DebuggerField)
           :examples $ []
           :schema $ quote UnionDef
+        'read-states $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn read-states (store)
+            decode-map-as
+              .unwrap-or (get store :states) ({})
+              Map respo.schema/CoordKey Dynamic
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag V)
+            -> $ Map respo.schema/CoordKey Dynamic
+            :generics V
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
@@ -708,8 +715,7 @@
           :code $ quote $ defn updater (store op op-id op-time)
             match op
               (:states cursor s)
-                assoc store :states $ update-state-tree
-                  .unwrap-or (get store :states) ({})
+                assoc store :states $ update-state-tree (calc-dsl.schema/read-states store)
                   decode-map-as cursor $ List respo.schema/CoordKey
                   decode-map-as s calc-dsl.schema/StatePayload
               (:hydrate-storage d)
