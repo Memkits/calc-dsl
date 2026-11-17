@@ -50,7 +50,7 @@
     'calc-dsl.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-container (reel)
+          :code $ quote $ defcomp comp-container (reel on-control!)
             let
                 store $ :store reel
                 states $ calc-dsl.schema/read-states store
@@ -69,13 +69,14 @@
                       Map Tag calc-dsl.schema/DebuggerField
                   comp-debugger cursor state
                 if dev?
-                  Some $ comp-typed-reel (>> states :reel) reel $ {}
+                  Some $ comp-typed-reel (>> states :reel) reel ({}) on-control!
                   , None
           :examples $ []
           :schema $ quote $ Fn
             reel.typed/State Op $ Map Tag Dynamic
+            Fn reel.typed/Control (-> Unit) (:features :state)
             -> respo.schema/Component
-            :features :io :js-ffi
+            :features :io :js-ffi :state
         'comp-debugger $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-debugger (cursor state)
             div
@@ -497,6 +498,12 @@
             .unwrap $ query-selector |.app
           :examples $ []
           :schema $ quote respo.dom/DomElement
+        'on-control! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn on-control! (control)
+            reset! *reel $ reel/apply-control updater @*reel control
+            , &unit
+          :examples $ []
+          :schema $ quote $ Fn reel/Control (-> Unit) (:features :state)
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             js/localStorage.setItem
@@ -518,7 +525,7 @@
           :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            with-memo-frame $ fn () $ render! mount-target (comp-container @*reel)
+            with-memo-frame $ fn () $ render! mount-target (comp-container @*reel on-control!)
               fn (op) (dispatch! op)
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :io :state)
