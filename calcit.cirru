@@ -518,7 +518,8 @@
           :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            with-memo-frame $ fn () $ render! mount-target (comp-container @*reel) dispatch!
+            with-memo-frame $ fn () $ render! mount-target (comp-container @*reel)
+              fn (op) (dispatch! op)
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'snippets $ %{} 'CodeEntry (:doc |)
@@ -720,11 +721,10 @@
                   decode-map-as s calc-dsl.schema/StatePayload
               (:hydrate-storage d)
                 decode-map-as d $ Map Tag Dynamic
-              _ $ do (eprintln "|Unknown op:" op) store
+              _ store
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) calc-dsl.schema/Op String Number
             -> $ Map Tag Dynamic
-            :features :io
           :tests $ [] $ %{} 'TestEntry (:name |accepts-reel-string-and-debugger-result)
             :code $ quote $ let
                 reel-cursor $ [] :reel :query
