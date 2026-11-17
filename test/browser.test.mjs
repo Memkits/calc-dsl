@@ -17,7 +17,7 @@ const event = (values, eventType) => event__GT_edn({
   keyCode: values.keycode,
   metaKey: values['meta?'],
 });
-const render = (value) => comp_container(new_reel(value));
+const render = (value) => comp_container(new_reel(value), () => {});
 const elements = (component) => {
   const result = [];
   const visit = (node) => {
