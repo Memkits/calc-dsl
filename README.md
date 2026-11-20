@@ -8,7 +8,7 @@ Demo http://r.tiye.me/mvc-works/calc-dsl .
 
 ### 0.44.0：使用者影响
 
-候选 Git 模块 0.1.2 要求正式 Calcit CLI 与 `@calcit/procs` 0.44.0，依赖 Reel 0.11.3、UI 0.15.5、Respo 0.19.11 和 JS FFI 0.2.18。请重新安装依赖，生成浏览器和 CLI 产物。公式语法、数值规则和旧存档继续沿用原合同。公开求值器继续支持旧的开放输入，包括未知操作返回 1。调试面板的状态值由 `DebuggerField` union 检查，支持公式文本、数字和数字结果列表；Reel 控制通过独立回调处理。
+候选 Git 模块 0.1.2 要求正式 Calcit CLI 与 `@calcit/procs` 0.44.0，依赖 Reel 0.11.4、UI 0.15.6、Respo 0.19.12 和 JS FFI 0.2.18。请重新安装依赖，生成浏览器和 CLI 产物。公式语法、数值规则和旧存档继续沿用原合同。公开求值器继续支持旧的开放输入，包括未知操作返回 1。调试面板的状态值由 `DebuggerField` union 检查，支持公式文本、数字和数字结果列表；Reel 控制通过独立回调处理。
 
 ### 0.38.0：使用者影响
 
@@ -190,7 +190,7 @@ npm pack --dry-run
 
 CI 保留全部/公开定义、双入口完整 strict（passed 且 diagnostics 为空）和全部原测试，不添加预算豁免、验证脚本、框架或 concurrently。`yarn dev` 先编译再启动 Vite，实时编辑可另开终端运行 `calcit -w calcit.cirru`。
 
-前端仅 dist 上传 COS，使用 action v1.2.0 内置 verify。PR 前缀包含编号/run/attempt，main 生产 CDN 和 `/web-assets/repo/Memkits/calc-dsl` 路径保持；release 工作流仍只验收并部署 Demo，不执行 npm publish。main/release 共享原排队策略，不取消正在上传的任务。
+前端仅 dist 上传 COS，使用 action v1.3.0 内置 verify。PR 前缀包含编号/run/attempt，main 生产 CDN 和 `/web-assets/repo/Memkits/calc-dsl` 路径保持；release 工作流仍只验收并部署 Demo，不执行 npm publish。main/release 共享原排队策略，不取消正在上传的任务。
 
 PR 仅沿用隔离的前端预览。Git 模块与 npm CLI 独立发布，源码版本不代表 npm 已更新。
 
