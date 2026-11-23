@@ -723,7 +723,7 @@
           :code $ quote $ defn updater (store op op-id op-time)
             match op
               (:states cursor s)
-                assoc store :states $ update-state-tree (calc-dsl.schema/read-states store)
+                assoc store :states $ update-state-map (calc-dsl.schema/read-states store)
                   decode-map-as cursor $ List respo.schema/CoordKey
                   decode-map-as s calc-dsl.schema/StatePayload
               (:hydrate-storage d)
@@ -752,4 +752,4 @@
             :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns calc-dsl.updater
-          :require $ respo.cursor :refer $ update-state-tree
+          :require $ respo.cursor :refer $ update-state-map
