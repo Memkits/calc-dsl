@@ -60,12 +60,13 @@
                     cursor $ state-cursor branch
                     initial $ {} (:content |) (:x 1)
                       :result $ []
+                    raw-state $ .unwrap-or
+                      respo.cursor/get-state-at branch $ [] :data
+                      , initial
                     state $ decode-map-as
-                      or
-                        .unwrap-or
-                          respo.cursor/get-state-at branch $ [] :data
-                          , initial
-                        , initial
+                      if
+                        or (nil? raw-state) (identical? false raw-state)
+                        , initial raw-state
                       Map Tag calc-dsl.schema/DebuggerField
                   comp-debugger cursor state
                 if dev?
