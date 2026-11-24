@@ -107,3 +107,11 @@ test('input values are validated rather than silently coerced', () => {
   assert.throws(() => fire(store, t.textarea, t.input, { value: 123 }));
   assert.throws(() => fire(store, t.input, t.input, { value: null }));
 });
+
+test('legacy nil and false debugger states use the original defaults', () => {
+  for (const value of [null, false]) {
+    const prior = c.assoc(store, t.states, c._$n__$M_(t.debugger, c._$n__$M_(t.data, value)));
+    assert.equal(attr(find(prior, t.textarea), t.value), '');
+    assert.equal(attr(find(prior, t.input), t.value), 1);
+  }
+});
