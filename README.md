@@ -6,9 +6,9 @@ Calc DSL
 
 Demo http://r.tiye.me/mvc-works/calc-dsl .
 
-### 0.46.0：使用者影响
+### 0.47.1：使用者影响
 
-候选 Git 模块 0.1.6 使用正式 Calcit CLI 与 `@calcit/procs` 0.46.0，配套 Reel 0.11.10、UI 0.16.6、Respo 0.20.0、JS FFI 0.2.26 和传递 Router 0.12.18。请重新安装依赖并生成浏览器与 CLI 产物；公式语法、数值规则和旧存档沿用原合同。Git 候选与 npm CLI 独立发布，请在正式 Git tag 发布后升级。
+候选 Git 模块 0.1.7 使用正式 Calcit CLI 与 `@calcit/procs` 0.47.1，配套 Reel 0.11.11、UI 0.16.7、Respo 0.20.1、JS FFI 0.2.26 和传递 Router 0.12.19。请重新安装依赖并生成浏览器与 CLI 产物；公式语法、数值规则和旧存档沿用原合同。Git 候选与 npm CLI 独立发布，请在正式 Git tag 发布后升级。
 
 ### 0.45.0：使用者影响
 
